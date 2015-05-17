@@ -2,9 +2,10 @@ clear all
 close all
 clc
 
-% You also need the 
+% You the dependencies, which are all located in 
+% 
 
-toolboxpath = 'setpath here';
+toolboxpath = '/imaging/dp01/toolboxes/mnitofs/';
 addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
 
 %% Simple Auto Wrapper - All Settings are at Default and Scaling is Automatic
@@ -41,6 +42,37 @@ S = mnitofs_overlay(S);
 view([-90 0]) % change camera angle
 mnitofs_lights % Dont forget to turn on the lights!
 % Optional - lighting can be altered after rendering
+
+
+%% Animate
+close all
+NII = load_nii('path/to/4D/nitfti/file.nii');
+
+% Load and Render the FreeSurfer surface
+S = [];
+S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
+S.inflationstep = 6; % 1 no inflation, 6 fully inflated
+S = mnitofs_brain(S);
+
+for ii = 1:3:size(NII.img,4)
+    if ii > 1
+        delete(S.p)
+    end
+    NIIframe.img = NII.img(:,:,:,ii);
+    S.mnivol = NIIframe;
+    S.clims = 'auto'; % overlay masking below 98th percentile
+    S.climstype = 'pos';
+    S.interpmethod = 'cubic';
+    S.colormap = 'jet';
+    S = mnitofs_overlay(S);
+    view([90 0]) % change camera angle
+    mnitofs_lights
+    pause(0.01)
+    % Optional - lighting can be altered after rendering
+end
+
+
+
 
 %% For high quality output 
 % Try export_fig package included in this release
