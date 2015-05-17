@@ -11,9 +11,10 @@ Tested in matlab 2013a with OpenGL (linux).
 NOTE: This is the beta version, so please check your results carefully. Report any bugs at github, or send me an email (dprice80@gmail.com)
 
 Instructions
+
 Download the repository *.m files
 
-Download the support files below.
-Unpack the support files in to your mnitofs directory and add all folders to your path (see example). 
-Note: You must have the /surf folder in your mnitofs root directory, but you can move all other folders. If you have SPM on your path you might want to remove gifti-1.4 as SPM will complain about this being in two places.
+Download the support files from github.com/dprice80/mnitofs/releases
+Unpack the support files into your mnitofs directory and add all folders to your path (see example). 
+Note: You must have the /surf folder in your mnitofs root directory, but you can move all other folders elsewhere. If you have SPM on your path you might want to remove gifti-1.4 from the mnitofs root folder, as SPM will complain about this being in two places (this is the case for SPM 12).
 
