@@ -23,7 +23,8 @@ Y = reshape(XYZmni(:,2),sz);
 Z = reshape(XYZmni(:,3),sz);
 
 % Get veritces in MNI space
-load('/imaging/dp01/toolboxes/mnitofs/surf/transmats.mat','Tfstovox_rcor','Trsvoxtomni_rcor');
+thisfolder = fileparts(mfilename('fullpath'));
+load(fullfile(thisfolder,'surf/transmats.mat'),'Tfstovox_rcor','Trsvoxtomni_rcor');
 V = [V ones(length(V),1)]*Tfstovox_rcor'*Trsvoxtomni_rcor';
 
 Vsurf = interpn(X,Y,Z,NII.img,V(:,1),V(:,2),V(:,3),InterpMethod);

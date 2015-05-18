@@ -11,6 +11,16 @@ function [S] = mnitofs_brain(S)
 % default = 5
 % .separateHem = positive scalar. Amount in mm by which to separate
 % hemespheres. Default = 10mm for each inflation step
+%
+% Example:
+% figure('color','k')
+% S = [];
+% S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
+% S.inflationstep = 6; % 1 no inflation, 6 fully inflated
+% S = mnitofs_brain(S);
+% mnitofs_lights
+% view([-50 30])
+% 
 % Written by Darren Price, CSLB, University of Cambridge, 2015
 
 if ~isfield(S,'hem'); error('hem input is required'); end
@@ -18,7 +28,13 @@ if ~isfield(S,'surfacetype'); S.surfacetype = 'inflated'; end
 if ~isfield(S,'inflationstep'); S.inflationstep = 5; end
 
 thisfolder = fileparts(mfilename('fullpath'));
-
+if ~exist([thisfolder '/surf'],'dir')
+    warning('SURF FOLDER NOT FOUND:')
+    disp('Please download the support files (.zip) from')
+    disp('<a href = "https://github.com/dprice80/mnitofs/releases/download/1.0.0/mnitofs_supportfiles.zip">https://github.com/dprice80/mnitofs/releases/</a>')
+    error(['Surfaces not found'])
+end
+    
 switch S.surfacetype
     case 'inflated'
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);

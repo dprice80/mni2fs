@@ -2,9 +2,7 @@ clear all
 close all
 clc
 
-% You the dependencies, which are all located in 
-% 
-
+% Replace the following path with the path to the mnitofs toolbox folder
 toolboxpath = '/imaging/dp01/toolboxes/mnitofs/';
 addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
 

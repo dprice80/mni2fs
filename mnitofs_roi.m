@@ -19,6 +19,12 @@ if ~isfield(S,{'roicolorspec'}); S.roicolorspec = 'r'; end
 if ~isfield(S,{'roialpha'}); S.roialpha = 1; end
 
 thisfolder = fileparts(mfilename('fullpath'));
+if ~exist([thisfolder '/surf'],'dir')
+    warning('SURF FOLDER NOT FOUND:')
+    disp('Please download the support files (.zip) from')
+    disp('<a href = "https://github.com/dprice80/mnitofs/releases/download/1.0.0/mnitofs_supportfiles.zip">https://github.com/dprice80/mnitofs/releases/</a>')
+    error(['Surfaces not found'])
+end
 
 surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
 switch S.surfacetype
