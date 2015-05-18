@@ -17,6 +17,7 @@ end
 
 if ~isfield(S,{'roicolorspec'}); S.roicolorspec = 'r'; end
 if ~isfield(S,{'roialpha'}); S.roialpha = 1; end
+if ~isfield(S,{'roismoothdata'}); S.roismoothdata = 0; end
 
 thisfolder = fileparts(mfilename('fullpath'));
 if ~exist([thisfolder '/surf'],'dir')
