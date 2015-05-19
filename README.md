@@ -8,7 +8,7 @@ A stand-alone MATLAB toolbox for rendering MNI space volumes on a canonical Free
 
 Tested in matlab 2013a with OpenGL (linux).
 
-NOTE: This is the beta version, so please check your results carefully. Report any bugs at github, or send me an email (dprice80@gmail.com)
+NOTE: This is the beta version, so please check your results carefully. Report any bugs.
 
 Instructions
 
