@@ -45,7 +45,7 @@ mni2fs_lights % Dont forget to turn on the lights!
 %% Animate
 close all
 NII = load_nii('path/to/4D/nitfti/file.nii');
-
+NIIframe = NII;
 % Load and Render the FreeSurfer surface
 S = [];
 S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
