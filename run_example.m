@@ -3,7 +3,7 @@ close all
 clc
 
 % Replace the following path with the path to the mni2fs toolbox folder
-toolboxpath = '/imaging/dp01/toolboxes/mni2fs/';
+toolboxpath = 'path/to/this/script/';
 addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
 
 %% Simple Auto Wrapper - All Settings are at Default and Scaling is Automatic
@@ -18,7 +18,7 @@ view([40 30])
 
 %% Plot ROI and Overlay
 close all
-figure('Color','w','position',[20 72 800 600])
+figure('Color','k','position',[20 72 800 600])
 
 % Load and Render the FreeSurfer surface
 S = [];

@@ -13,7 +13,7 @@ function [S] = mni2fs_auto(mnivol,hem)
 % Written by Darren Price, CSLB, University of Cambridge, 2015
 % https://github.com/dprice80/mni2fs for latest releases
 
-set(gcf,'color','w');
+set(gcf,'color','k');
 
 S = [];
 S.hem = hem;

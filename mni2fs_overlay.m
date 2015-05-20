@@ -34,12 +34,8 @@ if ~isfield(S,'interpmethod'); S.interpmethod = 'cubic'; end
 S.lastcolormapused = S.colormap;
 
 thisfolder = fileparts(mfilename('fullpath'));
-if ~exist([thisfolder '/surf'],'dir')
-    warning('SURF FOLDER NOT FOUND:')
-    disp('Please download the support files (.zip) from')
-    disp('<a href = "https://github.com/dprice80/mni2fs/releases/download/1.0.0/mni2fs_supportfiles.zip">https://github.com/dprice80/mni2fs/releases/</a>')
-    error(['Surfaces not found'])
-end
+
+mni2fs_checkpaths
 
 surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
 switch S.surfacetype
@@ -70,7 +66,10 @@ if ischar(S.mnivol)
 elseif isstruct(S.mnivol)
     NII = S.mnivol;
 end
-
+if isinteger(NII.img) % Convert NII image to double
+    NII.img = single(NII.img);
+end
+    
 if S.smoothdata > 0
     disp('Smoothing Volume')
     NII.img = smooth3(NII.img,'gaussian',S.smoothdata);
@@ -124,25 +123,7 @@ switch S.climstype
         else
             col = S.lastcolormapused;
         end
-        L = (length(col)-1)/2; % get half index length (first index is 1)
-        cmin = S.clims(1); % get clims
-        cmax = S.clims(2); 
-        scale = L/cmax; % get index length (from middle to max) to clim scaling
-        cmin = cmin*scale/2+L/2; % scale cmin and add intercept
-        cmax = cmax*scale; % scale cmax
-        deriv = L/(L-cmin); % calculate derivative for interpolation (will be more accurate than rounding off)
-        ucol = linspace(L-L*deriv,L,L*2); % calculate first slope for resampling reference vector
-        ucol(ucol < 0) = 0;
-        lcol = linspace(0,L*deriv,L*2);
-        lcol(lcol > L) = L;
-        ramp = ucol+lcol+1; % add upper and lower ramps
-        for ii = 1:3
-            coli(:,ii) = interpn([1:L*2+1]',col(:,ii),ramp','cubic'); % interpolate new colors for each channel
-        end
-        coli(coli > 1) = 1; % set extrapolated values to 
-        coli(coli < 0) = 0;
-%         if any(isnan(coli(:))); keyboard; end
-%         if any((coli(:)<0)); keyboard; end
+        coli = mni2fs_rescale_colormap(col,S.clims);
         S.lastcolormapused = coli;
         set(gca,'CLim',[-S.clims(2) S.clims(2)])
     case 'pos'
@@ -150,9 +131,9 @@ switch S.climstype
 end
 
 colormap(S.lastcolormapused)
-% Edit Colormap
 
-axis vis3d
+% Edit Colormap
 shading flat
+axis vis3d
 freezeColors
 rotate3d

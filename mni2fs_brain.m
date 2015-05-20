@@ -27,14 +27,16 @@ if ~isfield(S,'hem'); error('hem input is required'); end
 if ~isfield(S,'surfacetype'); S.surfacetype = 'inflated'; end
 if ~isfield(S,'inflationstep'); S.inflationstep = 5; end
 
-thisfolder = fileparts(mfilename('fullpath'));
-if ~exist([thisfolder '/surf'],'dir')
-    warning('SURF FOLDER NOT FOUND:')
-    disp('Please download the support files (.zip) from')
-    disp('<a href = "https://github.com/dprice80/mni2fs/releases/download/1.0.0/mni2fs_supportfiles.zip">https://github.com/dprice80/mni2fs/releases/</a>')
-    error(['Surfaces not found'])
+if ~isfield(S,'priv')
+    % Set default values for private settings
+    S.priv.lh.sep = false;
+    S.priv.rh.sep = false;
 end
-    
+
+thisfolder = fileparts(mfilename('fullpath'));
+
+mni2fs_checkpaths
+
 switch S.surfacetype
     case 'inflated'
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
@@ -42,6 +44,7 @@ switch S.surfacetype
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
     case 'pial'
         surf_fn = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
 end
 curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
 
@@ -56,9 +59,17 @@ S.gfsinf = gifti(surfrender_fn);
 
 switch S.hem
     case 'lh'
-        S.gfsinf.vertices(:,1) = S.gfsinf.vertices(:,1)-S.separateHem;
+        if ~S.priv.lh.sep
+            S.gfsinf.vertices(:,1) = S.gfsinf.vertices(:,1)-S.separateHem;
+            S.priv.lh.sep = true;
+        end
+        S.priv.loaded = 'lh'; % remember which is the currently loaded hem
     case 'rh'
-        S.gfsinf.vertices(:,1) = S.gfsinf.vertices(:,1)+S.separateHem;
+        if ~S.priv.rh.sep
+            S.gfsinf.vertices(:,1) = S.gfsinf.vertices(:,1)+S.separateHem;
+            S.priv.rh.sep = true;
+        end
+        S.priv.loaded = 'rh';
 end
 
 S.p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces);
@@ -75,13 +86,13 @@ switch S.surfacetype
 end
 
 curv = -curv;
-set(gca,'CLim',[-0.9 0.9])
-set(S.p,'FaceColor','flat','FaceVertexCData',curv,'CDataMapping','scaled')
-shading interp
+set(gca,'CLim',[-1 1])
+set(S.p,'FaceVertexCData',curv)
+shading flat
 axis equal
 axis vis3d
-colormap gray
+colormap('gray');
+freezeColors
 hold on
 axis off
 rotate3d
-freezeColors

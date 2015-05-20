@@ -8,6 +8,8 @@ function S = mni2fs_roi(S)
 % .roicolorspec - single char color value e.g. 'r' or three element vector
 % e.g. [0.3 0.5 1];
 % .roialpha = positive scalar [0-1]. Controls the transparency of the ROI.
+% .roismoothdata = scalar value by which to smooth the ROI volume. This has
+% the effect of expanding the ROI boundary
 % Written by Darren Price, CSLB, University of Cambridge, 2015
 
 if ~isfield(S,{'mnivol'})
@@ -20,12 +22,8 @@ if ~isfield(S,{'roialpha'}); S.roialpha = 1; end
 if ~isfield(S,{'roismoothdata'}); S.roismoothdata = 0; end
 
 thisfolder = fileparts(mfilename('fullpath'));
-if ~exist([thisfolder '/surf'],'dir')
-    warning('SURF FOLDER NOT FOUND:')
-    disp('Please download the support files (.zip) from')
-    disp('<a href = "https://github.com/dprice80/mni2fs/releases/download/1.0.0/mni2fs_supportfiles.zip">https://github.com/dprice80/mni2fs/releases/</a>')
-    error(['Surfaces not found'])
-end
+
+mni2fs_checkpaths
 
 surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
 switch S.surfacetype
@@ -59,6 +57,9 @@ if ischar(S.mnivol)
     NII = load_untouch_nii(S.mnivol);
 elseif isstruct(S.mnivol)
     NII = S.mnivol;
+end
+if isinteger(NII.img) % Convert NII image to double
+    NII.img = single(NII.img);
 end
 
 if S.roismoothdata > 0
