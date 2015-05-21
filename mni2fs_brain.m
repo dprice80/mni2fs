@@ -1,7 +1,7 @@
 function [S] = mni2fs_brain(S)
 % S = mni2fs_brain(S)
 % Render the inflated surface, prior to the ROI or Overlay
-% Required Fields of S
+% Required Fields of S 
 % .hem = 'lh' or 'rh'
 % Optional Fields
 % .surfacetype 'inflated' 'pial' or 'smoothwm' (default = 'inflated')
