@@ -29,19 +29,19 @@ if ~exist('load_nii','file')
     disp('Could not find the Nifti/Analyse toolbox containing load_nii.m.')
     disp('Please download and unpack the support files into the mni2fs toolbox folder:')
     disp('<a href="github.com/dprice80/mni2fs/releases">github.com/dprice80/mni2fs/releases</a>')
-    error('Could not find toolbox')
+    error('Could not find nifti/analyse toolbox')
 end
 
 if ~exist('gifti','file')
-    disp('Could not find the Nifti/Analyse toolbox containing load_nii.m.')
+    disp('Could not find the gifti toolbox containing gifti.m.')
     disp('Please download and unpack the support files into the mni2fs toolbox folder:')
     disp('<a href="github.com/dprice80/mni2fs/releases">github.com/dprice80/mni2fs/releases</a>')
-    error('Could not find toolbox')
+    error('Could not find gifti toolbox')
 end
 
 if ~exist('freezeColors','file')
-    disp('Could not find the Nifti/Analyse toolbox containing load_nii.m.')
+    disp('Could not find the freezeColors toolbox containing freezeColors.m.')
     disp('Please download and unpack the support files into the mni2fs toolbox folder:')
     disp('<a href="github.com/dprice80/mni2fs/releases">github.com/dprice80/mni2fs/releases</a>')
-    error('Could not find toolbox')
+    error('Could not find freezeColors toolbox')
 end
