@@ -6,6 +6,7 @@ function [S] = mni2fs_overlay(S)
 % Optional Fields
 % .clims - one or two element vector, or 'auto' for automatic scaling
 % .climstype - 'abs', 'pos' or 'neg'
+% .alpha
 % .smoothdata - 0 = no smoothing | positive scalar = smooth the volume before extracting values
 % .hem - 'lh' or 'rh'
 % .surfacetype 'inflated' 'pial' or 'smoothwm' (default = 'inflated')
@@ -31,19 +32,31 @@ if ~isfield(S,'surfacetype'); S.surfacetype = 'inflated'; end
 if ~isfield(S,'inflationstep'); S.inflationstep = 5; end
 if ~isfield(S,'colormap'); S.colormap = 'jet'; end
 if ~isfield(S,'interpmethod'); S.interpmethod = 'cubic'; end
+if ~isfield(S,'overlayalpha'); S.overlayalpha = 1; end
+
 S.lastcolormapused = S.colormap;
 
 thisfolder = fileparts(mfilename('fullpath'));
 
 mni2fs_checkpaths
 
-surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
 switch S.surfacetype
     case 'inflated'
+        surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
-    case 'inflated-pial'
+    case 'smoothwm'
+        surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
+    case 'mid'
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+        surf_fn = cell(0);
+        surf_fn{1} = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
+        surf_fn{2} = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
+    case 'pial'
         surf_fn = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+    otherwise
+        error('Options for .surfacetype = inflated, smoothwm, or pial')
 end
 curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
 
@@ -53,7 +66,15 @@ end
 
 curvecontrast = [-0.2 0.2]; % 0.9 = black / white
 
-if ~isfield(S,'gfs'); S.gfs = gifti(surf_fn); end
+if ~isfield(S,'gfs'); 
+    if iscell(surf_fn)
+        S.gfs = gifti(surf_fn{1});
+        surfav = gifti(surf_fn{2});
+        S.gfs.vertices = (S.gfs.vertices + surfav.vertices)/2;
+    else
+        S.gfs = gifti(surf_fn); 
+    end
+end
 
 if ~isfield(S,'gfsinf'); 
     S.gfsinf = gifti(surfrender_fn); 
@@ -114,7 +135,9 @@ switch S.climstype
 end
 
 S.p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:));
-set(S.p,'FaceVertexCData',Vsurf(ind))
+
+Va = ones(sum(ind),1).* S.overlayalpha; % can put alpha in here.
+set(S.p,'FaceVertexCData',Vsurf(ind),'FaceVertexAlphaData',Va,'FaceAlpha',S.overlayalpha)
 
 switch S.climstype
     case 'abs'

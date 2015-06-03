@@ -25,16 +25,24 @@ thisfolder = fileparts(mfilename('fullpath'));
 
 mni2fs_checkpaths
 
-surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
 switch S.surfacetype
     case 'inflated'
+        surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
     case 'smoothwm'
+        surf_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
-    case 'inflated-pial'
+    case 'mid'
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+        surf_fn{1} = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
+        surf_fn{2} = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
+    case 'pial'
         surf_fn = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+    otherwise
+        error('Options for .surfacetype = inflated, smoothwm, or pial')
 end
+
 curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
 
 if ~isfield(S,'separateHem');
@@ -43,10 +51,16 @@ end
 
 curvecontrast = [-0.2 0.2]; % 0.9 = black / white
 
-colortable = [1 1 0; 1 0 1; 0 1 1; 1 0 0; 0 1 0; 0 0 1; 1 1 1; 0 0 0];
-colorlabels = {'y' 'm' 'c' 'r' 'g' 'b' 'w' 'k'};
+if ~isfield(S,'gfs'); 
+    if iscell(surf_fn)
+        S.gfs = gifti(surf_fn{1});
+        surfav = gifti(surf_fn{2});
+        S.gfs.vertices = (S.gfs.vertices + surfav.vertices)/2;
+    else
+        S.gfs = gifti(surf_fn); 
+    end
+end
 
-if ~isfield(S,'gfs'); S.gfs = gifti(surf_fn); end
 if ~isfield(S,'gfsinf'); 
     S.gfsinf = gifti(surfrender_fn); 
 else
@@ -88,7 +102,9 @@ end
 
 p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:),'EdgeColor','k','EdgeAlpha',0);
 
-if ischar('S.roicolorspec') == 1
+if ischar(S.roicolorspec)
+    colortable = [1 1 0; 1 0 1; 0 1 1; 1 0 0; 0 1 0; 0 0 1; 1 1 1; 0 0 0];
+    colorlabels = {'y' 'm' 'c' 'r' 'g' 'b' 'w' 'k'};
     cdata = colortable(strcmp(colorlabels,S.roicolorspec),:);
     cdata = repmat(cdata,sum(ind),1);
 else 
