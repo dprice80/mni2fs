@@ -57,7 +57,7 @@ end
 curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
 
 if ~isfield(S,'separateHem');
-    S.separateHem = S.inflationstep*10;
+    S.separateHem = (S.inflationstep-1)*10;
 end
     
 curvecontrast = [-0.2 0.2];

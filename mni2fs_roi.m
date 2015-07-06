@@ -5,6 +5,8 @@ function S = mni2fs_roi(S)
 % NIFTI structure obtained using load_nii(filename) or load_untouch_nii(filename)
 % .hem = 'lh' or 'rh'
 % Optional Fields
+% .surfacetype - 'inflated', 'smoothwm', 'mid', 'pial' (mid is the midpoint
+% between pial and gm/wm boundary)
 % .roicolorspec - single char color value e.g. 'r' or three element vector
 % e.g. [0.3 0.5 1];
 % .roialpha = positive scalar [0-1]. Controls the transparency of the ROI.
