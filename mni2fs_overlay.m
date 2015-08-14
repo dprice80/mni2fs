@@ -61,7 +61,7 @@ end
 curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
 
 if ~isfield(S,'separateHem');
-    S.separateHem = S.inflationstep*10;
+    S.separateHem = (S.inflationstep-1)*10;
 end
 
 curvecontrast = [-0.2 0.2]; % 0.9 = black / white
@@ -77,7 +77,7 @@ if ~isfield(S,'gfs');
 end
 
 if ~isfield(S,'gfsinf'); 
-    S.gfsinf = gifti(surfrender_fn); 
+    S.gfsinf = gifti(surfrender_fn);
 else
     S.separateHem = 0;
 end
@@ -87,13 +87,14 @@ if ischar(S.mnivol)
 elseif isstruct(S.mnivol)
     NII = S.mnivol;
 end
-if isinteger(NII.img) % Convert NII image to double
+
+if isinteger(NII.img) % Convert NII image to single
     NII.img = single(NII.img);
 end
     
 if S.smoothdata > 0
     disp('Smoothing Volume')
-    NII.img = smooth3(NII.img,'gaussian',S.smoothdata);
+    NII.img = smooth3(NII.img,'gaussian',15,S.smoothdata);
 end
 
 % Get the average from the three vertex values for each face

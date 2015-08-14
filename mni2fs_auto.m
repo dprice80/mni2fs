@@ -35,7 +35,7 @@ set(gcf,'color','k');
 S = [];
 S.hem = hem;
 S.inflationstep = 6;
-S.surfacetype = 'pial';
+S.surfacetype = 'inflated';
 S = mni2fs_brain(S);
 
 S.mnivol = mnivol;

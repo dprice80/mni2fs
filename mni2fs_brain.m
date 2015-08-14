@@ -118,3 +118,26 @@ freezeColors
 hold on
 axis off
 rotate3d
+
+% Add toolbar if one does not exist.
+if isempty(findobj(gcf,'type','uitoolbar'))
+    tb = uitoolbar(gcf);
+    icon = double(imread([thisfolder '/misc/icoright.png']))./255;
+    clear iconrot
+    for ii = 1:3
+        iconrot(:,:,ii) = rot90(icon(:,:,ii));
+    end
+    
+    p = uipushtool(tb,'TooltipString','Rotate Nearside Left',...
+        'ClickedCallback',...
+        'V = get(gca,''View'');  V = V-[45 0];  view(V);','CData',icon);
+    p = uipushtool(tb,'TooltipString','Rotate Nearside Right',...
+        'ClickedCallback',...
+        'V = get(gca,''View'');  V = V+[45 0];  view(V);','CData',flipdim(icon,2));
+    p = uipushtool(tb,'TooltipString','Rotate Nearside Up',...
+        'ClickedCallback',...
+        'V = get(gca,''View'');  V = V-[0 45];  view(V);','CData',iconrot);
+    p = uipushtool(tb,'TooltipString','Rotate Nearside Down',...
+        'ClickedCallback',...
+        'V = get(gca,''View'');  V = V+[0 45];  view(V);','CData',flipdim(iconrot,1));
+end
