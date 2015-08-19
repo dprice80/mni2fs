@@ -1,5 +1,5 @@
-function [S] = mni2fs_auto(mnivol,hem,clims_perc,viewangle)
-% Simple wrapper for mni2fs
+function [S] = mni2fs(mnivol,varargin)
+% Main wrapper for mni2fs
 % Usage: S = mni2fs_auto(mnivol,hem)
 % mnivol = path/filename.nii - a 3D NIFTI image in MNI space
 % hem = 'lr' or 'rh' - left or right hemesphere
@@ -12,6 +12,20 @@ function [S] = mni2fs_auto(mnivol,hem,clims_perc,viewangle)
 % for more info.
 % Written by Darren Price, CSLB, University of Cambridge, 2015
 % https://github.com/dprice80/mni2fs for latest releases
+
+% p = inputParser();
+% 
+% addRequired(p,'mnivol',@ischar);
+% 
+% validVals1 = {'def1', 'def2', 'var1in'};
+% valvar1 = @(x) any(validatestring(x,validVals1));
+% addOptional(p,'var1', 'def1', valvar1)
+% 
+% validVals2 = {'def1', 'def2', 'var2in'};
+% valvar2 = @(x) any(validatestring(x,validVals2));
+% addOptional(p,'var2', 'def2' ,valvar2)
+% 
+% parse(p,mnivol,varargin{:})
 
 if nargin == 2
     clims_perc = 0.98;
