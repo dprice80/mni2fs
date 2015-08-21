@@ -1,10 +1,9 @@
 # mni2fs
 MNI2FS: Surface Rendering of MNI Space Volumes for MATLAB
 
-Download the support files from 
-github.com/dprice80/mni2fs/releases
+All files are now included in the git repository so no need to download the release files.
 
-A stand-alone MATLAB toolbox for rendering MNI space volumes on a canonical FreeSurfer inflated surface. In addition to general purpose use, it is ideal for rendering SPM or FieldTrip EEG/MEG results, since the canonical mesh used here matches those software perfectly. FreeSurfer is not required on the system. 
+MNI2FS is a stand-alone MATLAB toolbox for rendering MNI space volumes on a canonical FreeSurfer inflated surface. In addition to general purpose use, it is ideal for rendering SPM or FieldTrip EEG/MEG results, since the canonical mesh used here matches those software perfectly. FreeSurfer is not required. 
 
 Tested in matlab 2013a with OpenGL (linux).
 
@@ -14,7 +13,12 @@ Instructions
 
 Download the repository *.m files
 
-Download the support files from github.com/dprice80/mni2fs/releases
-Unpack the support files into your mni2fs directory and add all folders to your path (see example). 
-Note: You must have the /surf folder in your mni2fs root directory, but you can move all other folders elsewhere. If you have SPM on your path you might want to remove gifti-1.4 from the mni2fs root folder, as SPM will complain about this being in two places (this is the case for SPM 12).
+open run_example in the root folder for examples of various functions. 
+
+Use mni2fs_auto for a quick example (see run_example)
+
+Use separate command line functions for more customisable scripting
+
+Send questions to Darren Price: dprice80 'curlyathing' gmail.com
+
 
