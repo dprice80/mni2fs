@@ -10,7 +10,7 @@ addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
 close all
 mni2fs_auto(fullfile(toolboxpath, 'examples/AudMean.nii'),'lh')
 
-%% Plot both hemespheres
+%% Plot both hemispheres
 close all
 mni2fs_auto(fullfile(toolboxpath, 'examples/AudMean.nii'),'lh')
 mni2fs_auto(fullfile(toolboxpath, 'examples/AudMean.nii'),'rh')
@@ -24,6 +24,9 @@ figure('Color','k','position',[20 72 800 600])
 S = [];
 S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
 S.inflationstep = 6; % 1 no inflation, 6 fully inflated
+S.plotsurf = 'inflated';
+S.lookupsurf = 'mid';
+% S.decimation = 0; % UNCOMMENT FOR FULL RESOLUTION RENDERING 
 S = mni2fs_brain(S);
 
 % Plot an ROI, and make it semi transparent
