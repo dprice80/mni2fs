@@ -86,7 +86,7 @@ if ~isfield(S,'gfs');
     
     % Load / create the reduced path set indexes
     if S.decimation ~= 0
-        dec = load(['/imaging/dp01/toolboxes/mni2fs/surf/vlocs_20000_' S.hem '.mat']);
+        dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
         S.gfs.vertices = S.gfs.vertices(dec.vlocs,:);
         S.gfs.faces = dec.faces;
         S.decimated = true;

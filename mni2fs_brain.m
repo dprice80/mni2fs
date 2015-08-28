@@ -85,7 +85,7 @@ if ~isfield(S,'gfsinf')
     curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
     load(curv_fn);
     if S.decimation ~= 0
-        dec = load(['/imaging/dp01/toolboxes/mni2fs/surf/vlocs_20000_' S.hem '.mat']);
+        dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
         S.gfsinf.vertices = S.gfsinf.vertices(dec.vlocs,:);
         S.gfsinf.faces = dec.faces;
         S.decimated = true;
@@ -141,12 +141,16 @@ shading flat
 axis equal
 axis vis3d
 colormap('gray');
-freezeColors
+freezeColors;
 hold on
 axis off
 
 % Add toolbar if one does not exist.
 mni2fs_addtoolbar();
 
-set(gca,'Tag','overlay')
-rotate3d
+set(gca,'Tag','overlay');
+rotate3d;
+
+if S.decimated == 1
+    disp('NOTE: Using Decimated Surface. For full print quality resolution set .decimation = 0')
+end
