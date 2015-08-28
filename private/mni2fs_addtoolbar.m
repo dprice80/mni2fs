@@ -1,6 +1,6 @@
 function mni2fs_addtoolbar
 
-thisfolder = fileparts(mfilename);
+thisfolder = fileparts(mfilename('fullpath'));
 
 if isempty(findobj(gcf,'type','uitoolbar'))
     tb = uitoolbar(gcf);
