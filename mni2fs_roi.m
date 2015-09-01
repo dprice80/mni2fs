@@ -154,7 +154,7 @@ Va = ones(size(cdata,1),1).* S.roialpha; % can put alpha in here.
 
 set(p,'FaceVertexCData',cdata,'FaceVertexAlphaData',Va,'FaceAlpha',S.roialpha);
 
-    shading flat
+shading flat
 
 axis vis3d
 
