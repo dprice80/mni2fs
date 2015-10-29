@@ -148,9 +148,9 @@ end
 if ischar(S.clims)
     if strcmp(S.clims,'auto')
         if strcmp(S.climstype,'abs')
-            S.clims = [quantile(abs(Vsurf),S.clims_perc) max(abs(Vsurf))];
+            S.clims = [quantile2(abs(Vsurf), S.clims_perc, [], 'R-5') max(abs(Vsurf))];
         else
-            S.clims = [quantile(Vsurf,S.clims_perc) max(Vsurf)];
+            S.clims = [quantile2(Vsurf,S.clims_perc, [], 'R-5') max(Vsurf)];
         end
     else
         error('unrecognised value for S.clims')

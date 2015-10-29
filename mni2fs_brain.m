@@ -43,7 +43,7 @@ function [S] = mni2fs_brain(S)
 % Darren Price, CSLB, University of Cambridge, 2015
 
 if ~isfield(S,'hem'); error('hem input is required'); end
-if isfield(S,'surfacetype'); S.plotsurf = S.surfacetype; end
+if isfield(S,'surfacetype'); S.plotsurf = S.surfacetype; warning('You may now also specify a look up surface that is different to the plotting surface. Use .lookupsurf (see help mni2fs_brain)'); end
 if ~isfield(S,'plotsurf'); S.plotsurf = 'inflated'; end
 if ~isfield(S,'inflationstep'); S.inflationstep = 5; end
 if ~isfield(S,'surfacecolorspec'); S.surfacecolorspec = false; end

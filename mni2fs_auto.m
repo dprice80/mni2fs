@@ -30,12 +30,13 @@ if nargin == 3
     end
 end 
 
-set(gcf,'color','k');
+set(gcf,'color','w');
 
 S = [];
 S.hem = hem;
-S.inflationstep = 6;
-S.surfacetype = 'inflated';
+S.decimation = 0;
+S.inflationstep = 1;
+S.lookupsurf = 'smoothwm';
 S = mni2fs_brain(S);
 
 S.mnivol = mnivol;
@@ -46,7 +47,8 @@ else
     S.clims_= clims_perc;
 end
 
+S.plotsurf = 'pial';
 S = mni2fs_overlay(S);
-view(viewangle)
+view(viewangle);
 
-mni2fs_lights
+mni2fs_lights;

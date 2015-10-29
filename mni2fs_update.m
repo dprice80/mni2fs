@@ -62,9 +62,9 @@ for surfi = 1:size(NII.img,4)
     if ischar(S.clims)
         if strcmp(S.clims,'auto')
             if strcmp(S.climstype,'abs')
-                S.clims = [quantile(abs(Vsurf(:,surfi)),S.clims_perc) max(abs(Vsurf(:,surfi)))];
+                S.clims = [quantile2(abs(Vsurf(:,surfi)), S.clims_perc, [], 'R-5') max(abs(Vsurf(:,surfi)))];
             else
-                S.clims = [quantile(Vsurf(:,surfi),S.clims_perc) max(Vsurf(:,surfi))];
+                S.clims = [quantile2(Vsurf(:,surfi), S.clims_perc, [], 'R-5') max(Vsurf(:,surfi))];
             end
         else
             error('unrecognised value for S.clims')
