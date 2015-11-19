@@ -3,7 +3,7 @@ close all
 clc
 
 % Replace the following path with the path to the mni2fs toolbox folder
-toolboxpath = 'path/to/this/script/';
+toolboxpath = '/imaging/dp01/toolboxes/mni2fs/';
 addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
 
 %% Simple Auto Wrapper - All Settings are at Default and Scaling is Automatic
@@ -26,7 +26,7 @@ S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
 S.inflationstep = 6; % 1 no inflation, 6 fully inflated
 S.plotsurf = 'inflated';
 S.lookupsurf = 'mid';
-% S.decimation = 0; % UNCOMMENT FOR FULL RESOLUTION RENDERING 
+S.decimation = true; % Decimate the surface for speed. (Use FALSE for publishable quality figures).
 S = mni2fs_brain(S);
 
 % Plot an ROI, and make it semi transparent

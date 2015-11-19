@@ -32,7 +32,7 @@ if ~isfield(S,'roicolorspec'); S.roicolorspec = 'r'; end
 if ~isfield(S,'roialpha'); S.roialpha = 1; end
 if ~isfield(S,'roismoothdata'); S.roismoothdata = 0; end
 if ~isfield(S,'lookupsurf'); S.lookupsurf = 'smoothwm'; end
-if ~isfield(S,'decimation'); S.decimation = 20000; end
+if ~isfield(S,'decimation'); S.decimation = true; end
 if ~isfield(S,'decimated'); S.decimated = false; end
 
 thisfolder = fileparts(mfilename('fullpath'));
