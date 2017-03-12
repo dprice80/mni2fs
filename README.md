@@ -1,7 +1,7 @@
 # mni2fs
 MNI2FS: Surface Rendering of MNI Space Volumes for MATLAB 
 
-[Click here for a quick start guide](https://www.darrenprice.org/software)
+[Click here for a quick start guide](http://www.darrenprice.org/software)
 
 All files are now included in the git repository so no need to download the release files.
 
