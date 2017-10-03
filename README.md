@@ -17,6 +17,5 @@ Use mni2fs_auto for a quick example (see run_example)
 
 Use separate command line functions for more customisable scripting
 
-Send questions to Darren Price: dprice80 'curlyathing' gmail.com
-
-
+Changelog: 
+03/10/2017: Automatic in-memory reslicing added for cases where the nifti transformation matrix does not conform to the mni2fs requirements.
