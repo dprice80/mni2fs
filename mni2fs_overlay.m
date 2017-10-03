@@ -116,19 +116,18 @@ if ischar(S.mnivol)
     NII = load_untouch_nii(S.mnivol);
     testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
     if any(testT(:) < 0)
-        warning(sprintf('Transformation matrix contains a negative diagonal element. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii'))
-        [niifol, niifil, niiext] = fileparts(S.mnivol);
-        rsfile = [niifol, niifil, '_rs', niiext];
-        reslice_nii(S.mnivol, rsfile)
-        NII = load_untouch_nii(rsfile);
-        S.mnivol = rsfile;
+        warning(sprintf('Transformation matrix contains a negative diagonal element. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii')) %#ok<SPWRN>
+        NII = reslice_return_nii(S.mnivol);
+        S.mnivol = NII;
     end
 elseif isstruct(S.mnivol)
     NII = S.mnivol;
     testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
     if any(testT(:) < 0)
         disp(testT)
-        error('Negative value in NII header transformation matrix. \n This may give undesireable results. Please reslice the image using reslice_nii(old.nii, new.nii)')
+        warning(sprintf('Negative value in NII header transformation matrix. \nAutomatically reslicing image. \nTo save time reslice the image using reslice_nii(old.nii, new.nii)')) %#ok<SPWRN>
+        NII = reslice_return_nii([NII.fileprefix, '.m']);
+        S.mnivol = NII;
     end
 end
 
