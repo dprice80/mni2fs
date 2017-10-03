@@ -34,8 +34,8 @@ set(gcf,'color','w');
 
 S = [];
 S.hem = hem;
-S.decimation = 0;
-S.inflationstep = 1;
+S.decimation = 1;
+S.inflationstep = 5;
 S.lookupsurf = 'smoothwm';
 S = mni2fs_brain(S);
 
