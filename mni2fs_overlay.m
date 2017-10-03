@@ -43,7 +43,7 @@ if ~isfield(S,'interpmethod'); S.interpmethod = 'cubic'; end
 if ~isfield(S,'overlayalpha'); S.overlayalpha = 1; end
 if ~isfield(S,'lookupsurf'); S.lookupsurf = 'smoothwm'; end
 if ~isfield(S,'plotsurf'); S.plotsurf = 'inflated'; end
-if ~isfield(S,'decimation'); S.decimation = 20000; end
+if ~isfield(S,'decimation'); S.decimation = true; end
 if ~isfield(S,'decimated'); S.decimated = false; end
 
 S.lastcolormapused = S.colormap;
@@ -80,13 +80,9 @@ switch S.lookupsurf
         error('Options for .surfacetype = inflated, smoothwm, or pial')
 end
 
-curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
-
 if ~isfield(S,'separateHem');
     S.separateHem = (S.inflationstep-1)*10;
 end
-
-curvecontrast = [-0.2 0.2]; % 0.9 = black / white
 
 if ~isfield(S,'gfs');
     if iscell(surf_fn)
@@ -96,7 +92,7 @@ if ~isfield(S,'gfs');
     else
         S.gfs = export(gifti(surf_fn));
     end
-    if S.decimation ~= 0
+    if S.decimation
         dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
         S.gfs.vertices = S.gfs.vertices(dec.vlocs,:);
         S.gfs.faces = dec.faces;
@@ -106,7 +102,7 @@ end
 
 if ~isfield(S,'gfsinf');
     S.gfsinf = export(gifti(surfrender_fn));
-    if S.decimation ~= 0
+    if S.decimation
         % Load / create the reduced path set indexes
         dec = load(['/imaging/dp01/toolboxes/mni2fs/surf/vlocs_20000_' S.hem '.mat']);
         S.gfsinf.vertices = S.gfsinf.vertices(dec.vlocs,:);
@@ -116,11 +112,24 @@ else
     S.separateHem = 0;
 end
 
-
 if ischar(S.mnivol)
     NII = load_untouch_nii(S.mnivol);
+    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
+    if any(testT(:) < 0)
+        warning(sprintf('Transformation matrix contains a negative diagonal element. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii'))
+        [niifol, niifil, niiext] = fileparts(S.mnivol);
+        rsfile = [niifol, niifil, '_rs', niiext];
+        reslice_nii(S.mnivol, rsfile)
+        NII = load_untouch_nii(rsfile);
+        S.mnivol = rsfile;
+    end
 elseif isstruct(S.mnivol)
     NII = S.mnivol;
+    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
+    if any(testT(:) < 0)
+        disp(testT)
+        error('Negative value in NII header transformation matrix. \n This may give undesireable results. Please reslice the image using reslice_nii(old.nii, new.nii)')
+    end
 end
 
 if isinteger(NII.img) % Convert NII image to single
@@ -153,7 +162,7 @@ if ischar(S.clims)
             S.clims = [quantile2(Vsurf,S.clims_perc, [], 'R-5') max(Vsurf)];
         end
     else
-        error('unrecognised value for S.clims')
+        error('Unrecognised value for S.clims')
     end
 end
 
