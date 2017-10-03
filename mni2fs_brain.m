@@ -31,11 +31,16 @@ function [S] = mni2fs_brain(S)
 %    .surfacealpha   0-1 makes the surface transparent (works with or without
 %                    surfacecolorspec set)
 %
+%    .decimation     true | false : decimate the surface. Useful for fast
+%                    plotting low res images. 
+%                    true = low res, false = high res
+%
 % Example:
 %    figure('color','k')
 %    S = [];
 %    S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
 %    S.inflationstep = 6; (fully inflated)
+%    S.decimation = false;
 %    S = mni2fs_brain(S);
 %    mni2fs_lights
 %    view([-50 30])
@@ -77,7 +82,7 @@ if ~isfield(S,'separateHem');
     S.separateHem = (S.inflationstep-1)*10;
 end
     
-curvecontrast = [-0.2 0.2];
+curvecontrast = [-0.15 0.15];
 UseAlphaData = false;
 
 if ~isfield(S,'gfsinf')
