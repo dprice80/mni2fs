@@ -22,7 +22,7 @@ X = reshape(XYZmni(:,1),sz);
 Y = reshape(XYZmni(:,2),sz);
 Z = reshape(XYZmni(:,3),sz);
 
-% Get veritces in MNI space
+% Get vertices in MNI space
 thisfolder = fileparts(mfilename('fullpath'));
 load(fullfile(thisfolder,'surf/transmats.mat'),'Tfstovox_rcor','Trsvoxtomni_rcor');
 V = [V ones(length(V),1)]*Tfstovox_rcor'*Trsvoxtomni_rcor';
