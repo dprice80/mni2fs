@@ -9,8 +9,6 @@ GL = spm_mesh_smooth(g);
 
 datasm = spm_mesh_smooth(GL,data,smooth);
 
-load('/imaging/dp01/results/cc280/picnaming_sourceloc/R2SigmoidFits/Fits.mat','Fit','ff','q')
-
 Voutones = spm_mesh_to_grid(g,vol,ones(size(datasm)));
 Vout = spm_mesh_to_grid(g,vol,datasm);
 

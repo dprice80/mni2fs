@@ -54,6 +54,7 @@ hp = patch(struct(...
 if ~isempty(cdata)
     set(hp,'FaceVertexCData',cdata(:,indc), 'FaceColor','interp')
 end
+
 axes(ax);
 camlight;
 camlight(-80,-10);
