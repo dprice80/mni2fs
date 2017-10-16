@@ -3,7 +3,7 @@ close all
 clc
 
 % Replace the following path with the path to the mni2fs toolbox folder
-toolboxpath = 'C:\Users\trin2636\Documents\tomkirk-data\mni2fs-master';
+toolboxpath = '/imaging/dp01/toolboxes/mni2fs/';
 addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
 
 %% Simple Auto Wrapper - All Settings are at Default and Scaling is Automatic
@@ -47,7 +47,7 @@ mni2fs_lights % Dont forget to turn on the lights!
 
 %% Animate
 close all
-NII = load_nii('examples/AudMean.nii');
+NII = load_nii('path/to/4D/nitfti/file.nii');
 NIIframe = NII;
 % Load and Render the FreeSurfer surface
 S = [];
