@@ -1,7 +1,9 @@
 function [Vsurf] = mni2fs_extract(NII,V,InterpMethod)
 % Extracts values from an MNI space volume
 % NII = nifti structure, which should have .img and .hdr fields
-% V is an Mx3 matrix of vertex coordinates [X Y Z]
+% This will be interpolated onto the mesh represented by V.
+% V is an Mx3 matrix of vertex coordinates [X Y Z], representing the brain
+% surface.
 % InterpMethod can be either 'nearest' 'linear' 'cubic' 'spline'
 % Vsurf is an Mx1 array of extracted values, one for each vertex
 
