@@ -47,15 +47,32 @@ function [S] = mni2fs_brain(S)
 % 
 % Darren Price, CSLB, University of Cambridge, 2015
 
+% Edits made by Tom Kirk, IBME, University of Oxford, 2017
+% Modified so that the data can be drawn on any supplied surface, not just
+% the MNI atlas. Note that this functionality is set by providing a
+% directory to the custom surfaces by S.customSurfacePath, this dir must
+% contain surfaces (.gii), transformation matrices (.vloc?) and curves
+% (.mat) to the same naming convention as that in the /surf directory
+
 if ~isfield(S,'hem'); error('hem input is required'); end
 if isfield(S,'surfacetype'); S.plotsurf = S.surfacetype; warning('You may now also specify a look up surface that is different to the plotting surface. Use .lookupsurf (see help mni2fs_brain)'); end
-if ~isfield(S,'plotsurf'); S.plotsurf = 'inflated'; end
 if ~isfield(S,'inflationstep'); S.inflationstep = 5; end
 if ~isfield(S,'surfacecolorspec'); S.surfacecolorspec = false; end
 if ~isfield(S,'surfacealpha'); S.surfacealpha = 1; end
 if ~isfield(S,'lookupsurf'); S.lookupsurf = 'smoothwm'; end
 if ~isfield(S,'decimation'); S.decimation = 20000; end
 if ~isfield(S,'decimated'); S.decimated = false; end
+if ~isfield(S, 'customSurfacePath') 
+    S.customSurfacePath = '';
+    if ~isfield(S, 'plotsurf')
+        S.plotsurf = 'inflated';
+    end 
+else 
+    % temporarily disable all other references to surfaces 
+    S.plotsurf = ''; 
+end 
+customSurface = ( ~strcmp(S.customSurfacePath, '') ); 
+
 
 if ~isfield(S,'priv')
     % Set default values for private settings
@@ -64,21 +81,40 @@ if ~isfield(S,'priv')
 end
 
 thisfolder = fileparts(mfilename('fullpath'));
+% 
+% if ~ customSurface
+%     % new file prefix to condense the code below this point. 
+% else
+%     
+% end
+
 
 mni2fs_checkpaths
 
-switch S.plotsurf
-    case 'pial'
-        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
-    otherwise
-        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+% Use MNI surface (provided) or custom surface (user-supplied)?
+if ~ customSurface
+    switch S.plotsurf
+        case 'pial'
+            surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
+        otherwise
+            surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+    end
+    % Test that one of the standard surfaces has been requested. 
+    if all(strcmp({'inflated' 'smoothwm' 'pial' 'mid'},S.plotsurf) == 0)
+        error('Options for .surfacetype = inflated, smoothwm, pial or mid. For custom surfaces, provide the path via S.customSurfacePath.');
+    end
+    
+else
+    switch S.plotsurf
+        case 'pial'
+            surfrender_fn = fullfile(S.customSurfacePath, ['/' S.hem '.pial.surf.gii']); 
+        otherwise 
+            surfrender_fn = fullfile(S.customSurfacePath, ['/' S.hem '.inflated.surf.gii']);
+    end 
+    
 end
 
-if all(strcmp({'inflated' 'smoothwm' 'pial' 'mid'},S.plotsurf) == 0)
-    error('Options for .surfacetype = inflated, smoothwm, pial or mid')
-end
-
-if ~isfield(S,'separateHem');
+if ~isfield(S,'separateHem')
     S.separateHem = (S.inflationstep-1)*10;
 end
     
@@ -87,10 +123,22 @@ UseAlphaData = false;
 
 if ~isfield(S,'gfsinf')
     S.gfsinf = export(gifti(surfrender_fn));
-    curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
-    load(curv_fn);
+    
+    if customSurface
+        curv_fn = fullfile(S.customSurfacePath, ['/' S.hem 'curv.mat']);
+    else 
+        curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
+    end   
+    curv = importdata(curv_fn);       % Edit: explicitly name the variable curv, do not use load as this can return a struct wrapper as well
+    
     if S.decimation ~= 0
-        dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
+        if true % 
+            dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
+            warning('Decimation is hardcoded to 20000, needs updating for custom surfaces')
+        else
+            % custom decimation goes here. 
+        end 
+        
         S.gfsinf.vertices = S.gfsinf.vertices(dec.vlocs,:);
         S.gfsinf.faces = dec.faces;
         S.decimated = true;
