@@ -1,7 +1,6 @@
 function [S] = mni2fs_overlay(S)
 % mni2fs_overlay
-% What does this do??
-
+%
 % Required fields
 %     .mnivol - NIFTI file in MNI space containing data to be plotted or a
 %               NIFTI structure obtained using load_nii(filename) or load_untouch_nii(filename)
@@ -53,21 +52,15 @@ thisfolder = fileparts(mfilename('fullpath'));
 
 mni2fs_checkpaths
 
-if ~ strcmp( S.customSurfacePath, '')
-    pathPrefix = S.customSurfacePath;
-else
-    pathPrefix = fullfile(thisfolder, '/surf/'); 
-end 
-
 switch S.plotsurf
     case 'inflated'
-        surfrender_fn = fullfile(pathPrefix, [S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
     case 'smoothwm'
-        surfrender_fn = fullfile(pathPrefix, [S.hem '.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.surf.gii']);
     case 'mid'
-        surfrender_fn = fullfile(pathPrefix, [S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
     case 'pial'
-        surfrender_fn = fullfile(pathPrefix, [S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
     otherwise
         error('Options for .surfacetype = inflated, smoothwm, or pial')
 end
