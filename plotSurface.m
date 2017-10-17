@@ -2,7 +2,7 @@
 % To do: decimation, inflation step, transmats, mni_extract_individual
 
 clear
-% load files: a draw surface, interpolation surface (lookup) and nifti
+% Load files: a draw surface, interpolation surface (lookup) and nifti
 % overlay volume (func path) 
 % windows paths 
 % surfpath = 'C:\Users\trin2636\Documents\tomkirk-data\mni2fs-master\custom surf\lh.inflated.surf.gii';
