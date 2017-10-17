@@ -1,5 +1,5 @@
 %% Script to draw data onto any arbitrary surface.
-% to do: decimation, inflation step, transmats, mni_extract_individual
+% To do: decimation, inflation step, transmats, mni_extract_individual
 
 clear
 % load files: a draw surface, interpolation surface (lookup) and nifti
