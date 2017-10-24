@@ -46,6 +46,7 @@ function [S] = mni2fs_brain(S)
 %    view([-50 30])
 % 
 % Darren Price, CSLB, University of Cambridge, 2015
+% To do change decimation code (produce on the fly)
 
 if ~isfield(S,'hem'); error('hem input is required'); end
 if isfield(S,'surfacetype'); S.plotsurf = S.surfacetype; warning('You may now also specify a look up surface that is different to the plotting surface. Use .lookupsurf (see help mni2fs_brain)'); end
@@ -56,6 +57,9 @@ if ~isfield(S,'surfacealpha'); S.surfacealpha = 1; end
 if ~isfield(S,'lookupsurf'); S.lookupsurf = 'smoothwm'; end
 if ~isfield(S,'decimation'); S.decimation = 20000; end
 if ~isfield(S,'decimated'); S.decimated = false; end
+if ~isfield(S,'curvecontrast'); S.curvecontrast = [-0.15 0.15]; end
+if ~isfield(S,'binarycurv'); S.binarycurv = true; end
+if ~isfield(S,'fsdir'); S.fsdir = ''; end % Need to set this
 
 if ~isfield(S,'priv')
     % Set default values for private settings
@@ -67,34 +71,55 @@ thisfolder = fileparts(mfilename('fullpath'));
 
 mni2fs_checkpaths
 
-switch S.plotsurf
-    case 'pial'
-        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
-    otherwise
-        surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+if isempty(S.fsdir)
+    if all(strcmp({'inflated' 'smoothwm' 'pial' 'mid'},S.plotsurf) == 0) && isempty(strfind(S.plotsurf,'.gii'))
+        error('Options for .surfacetype = inflated, smoothwm, pial or mid')
+    end
+    switch S.plotsurf
+            case 'pial'
+                surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.pial.surf.gii']);
+            otherwise
+                surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
+    end
+    if ~isfield(S,'separateHem');
+        S.separateHem = (S.inflationstep-1)*10;
+    end
+else
+    surfrender_fn = sprintf('%s/surf/%s.%s', S.fsdir, S.hem, S.plotsurf);
+%     surf_source = 'file';
+    if ~isfield(S,'separateHem');
+        S.separateHem = 0;
+    end
 end
+   
+curvecontrast = S.curvecontrast;
+% UseAlphaData = false;
 
-if all(strcmp({'inflated' 'smoothwm' 'pial' 'mid'},S.plotsurf) == 0)
-    error('Options for .surfacetype = inflated, smoothwm, pial or mid')
-end
-
-if ~isfield(S,'separateHem');
-    S.separateHem = (S.inflationstep-1)*10;
-end
-    
-curvecontrast = [-0.15 0.15];
-UseAlphaData = false;
-
+% Read surfaces etc.
 if ~isfield(S,'gfsinf')
-    S.gfsinf = export(gifti(surfrender_fn));
-    curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
-    load(curv_fn);
-    if S.decimation ~= 0
-        dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
-        S.gfsinf.vertices = S.gfsinf.vertices(dec.vlocs,:);
-        S.gfsinf.faces = dec.faces;
-        S.decimated = true;
-        curv = curv(dec.vlocs);
+    if isempty(S.fsdir)
+        if S.decimation ~= 0 % this will need to change
+            dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
+            S.gfsinf.vertices = S.gfsinf.vertices(dec.vlocs,:);
+            S.gfsinf.faces = dec.faces;
+            S.decimated = true;
+            curv = curv(dec.vlocs);
+        end
+    else
+        S.gfsinf = mni2fs_readsurf(surfrender_fn);
+        if isfield(S,'curvdata')
+            curv_fn = S.curvdata;
+        else
+            if strcmp(surfrender_fn(end-3:end),'.dec')
+                d = dir(sprintf('%s/surf/%s*.dec.curv',S.fsdir, S.hem));
+                if isempty(d)
+                    error('Could not find decimated curvature data. Try rerunning setup scripts.')
+                else
+                    curv_fn = sprintf('%s/surf/%s',S.fsdir,d.name);
+                end
+            end
+        end
+        curv = read_curv(curv_fn);
     end
 end
 
@@ -118,9 +143,11 @@ S.p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces);
 if any(strcmp(S.plotsurf,{'smoothwm' 'pial'}))
     curv = curv./max(abs(curv));
     curv = curv*max(curvecontrast);
-else
+elseif S.binarycurv
     curv(curv > 0) = curvecontrast(2); %#ok<*NODEF>
     curv(curv < 0) = curvecontrast(1);
+else
+    curv = curv * S.curvecontrast(2);
 end
 
 if S.surfacecolorspec == false
@@ -135,9 +162,9 @@ else
         cdata = colortable(strcmp(colorlabels,S.surfacecolorspec),:);
         cdata = repmat(cdata,length(curv),1);
     else
-        cdata = repmat(S.surfacecolorspec,length(curv),1);
+        cdata = repmat(S.surfacecolorspec,length(S.gfsinf.vertices),1);
     end
-    Va = ones(size(cdata,1),1).*S.surfacealpha; % can put alpha in here.
+    Va = ones(size(cdata,1),1).*S.surfacealpha; 
     set(S.p,'FaceVertexCData',cdata,'FaceVertexAlphaData',Va,'FaceAlpha',S.surfacealpha)
 end
 

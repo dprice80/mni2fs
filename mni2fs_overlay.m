@@ -62,9 +62,11 @@ switch S.plotsurf
     case 'pial'
         surfrender_fn = fullfile(thisfolder,['/surf/' S.hem '.inflated' num2str(S.inflationstep) '.surf.gii']);
     otherwise
-        error('Options for .surfacetype = inflated, smoothwm, or pial')
+%         error('Options for .surfacetype = inflated, smoothwm, or pial')
+        surfrender_fn = fullfile(S.plotsurf);
 end
 
+if isempty(S.fsdir)
 switch S.lookupsurf
     case 'inflated'
         error('.lookupsurf should be either ''smoothwm'' ''pial'' or ''mid''')
@@ -79,6 +81,9 @@ switch S.lookupsurf
     otherwise
         error('Options for .surfacetype = inflated, smoothwm, or pial')
 end
+else
+    surf_fn = sprintf('%s/surf/%s.%s', S.fsdir, S.hem, S.lookupsurf);
+end
 
 if ~isfield(S,'separateHem');
     S.separateHem = (S.inflationstep-1)*10;
@@ -89,8 +94,11 @@ if ~isfield(S,'gfs');
         S.gfs = export(gifti(surf_fn{1}));
         surfav = export(gifti(surf_fn{2}));
         S.gfs.vertices = (S.gfs.vertices + surfav.vertices)/2;
-    else
+    elseif strfind(surfrender_fn,'.gii')
         S.gfs = export(gifti(surf_fn));
+    else
+        [S.gfs.vertices, S.gfs.faces] = read_surf(surf_fn);
+        S.gfs.faces = S.gfs.faces+1; % Fix fs indexing at 0 issue
     end
     if S.decimation
         dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
@@ -112,39 +120,25 @@ else
     S.separateHem = 0;
 end
 
-if ischar(S.mnivol)
-    NII = load_untouch_nii(S.mnivol);
-    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
-    if any(testT(:) < 0)
-        warning(sprintf('Transformation matrix contains a negative diagonal element. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii')) %#ok<SPWRN>
-        NII = reslice_return_nii(S.mnivol);
-        S.mnivol = NII;
-    end
-elseif isstruct(S.mnivol)
-    NII = S.mnivol;
-    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
-    if any(testT(:) < 0)
-        disp(testT)
-        warning(sprintf('Negative value in NII header transformation matrix. \nAutomatically reslicing image. \nTo save time reslice the image using reslice_nii(old.nii, new.nii)')) %#ok<SPWRN>
-        NII = reslice_return_nii([NII.fileprefix, '.m']);
-        S.mnivol = NII;
-    end
+[S.T.Traw, S.mnivol] = mni2fs_loadnii(S.mnivol);
+S.T.Tfs = mni2fs_loadnii([S.fsdir, '/mri/T1resliced.nii']);
+
+if isinteger(S.mnivol.img) % Convert S.mnivol image to single
+    S.mnivol.img = single(S.mnivol.img);
 end
 
-if isinteger(NII.img) % Convert NII image to single
-    NII.img = single(NII.img);
-end
-
-if S.smoothdata > 0
+if S.smoothdata > 0 && ~isfield(S, 'smoothed')
     disp('Smoothing Volume')
-    NII.img = smooth3(NII.img,'gaussian',15,S.smoothdata);
+    S.mnivol.img = smooth3(S.mnivol.img,'gaussian',15,S.smoothdata);
+    S.mnivol.smoothed = true;
 end
 
 % Get the average from the three vertex values for each face
 V = S.gfs.vertices(S.gfs.faces(:,1),:)/3;
 V = V+S.gfs.vertices(S.gfs.faces(:,2),:)/3;
 V = V+S.gfs.vertices(S.gfs.faces(:,3),:)/3;
-Vsurf(:,1) = mni2fs_extract(NII,V,S.interpmethod);
+
+Vsurf(:,1) = mni2fs_extract(S,V);
 
 switch S.hem
     case 'lh'
@@ -216,7 +210,7 @@ set(gca,'Tag','overlay')
 
 if S.decimated == false
     rot = rotate3d;
-    set(rot,'RotateStyle','box')
+%     set(rot,'RotateStyle','box')
 else
     rotate3d
 end

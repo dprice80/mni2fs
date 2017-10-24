@@ -11,7 +11,7 @@ if ~exist([thisfolder '/surf'],'dir')
     warning('SURF FOLDER NOT FOUND:')
     disp('Please download the support files (.zip) from')
     disp('<a href = "https://github.com/dprice80/mni2fs/releases/download/1.0.0/mni2fs_supportfiles.zip">https://github.com/dprice80/mni2fs/releases/</a>')
-    error(['Surfaces not found'])
+    error('Surfaces not found')
 end
 
 filecheck = true(3,1);
