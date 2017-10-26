@@ -73,7 +73,7 @@ mni2fs_checkpaths
 
 if isempty(S.fsdir)
     if all(strcmp({'inflated' 'smoothwm' 'pial' 'mid'},S.plotsurf) == 0) && isempty(strfind(S.plotsurf,'.gii'))
-        error('Options for .surfacetype = inflated, smoothwm, pial or mid')
+        error('Options for .plotsurf = inflated, smoothwm, pial or mid')
     end
     switch S.plotsurf
             case 'pial'
@@ -117,6 +117,8 @@ if ~isfield(S,'gfsinf')
                 else
                     curv_fn = sprintf('%s/surf/%s',S.fsdir,d.name);
                 end
+            else
+                curv_fn = sprintf('%s/surf/%s.curv',S.fsdir,S.hem);
             end
         end
         curv = read_curv(curv_fn);

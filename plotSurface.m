@@ -14,9 +14,9 @@ hems = {'lh' 'rh'};
 
 for hemi = 1:2
     hem = hems{hemi};
-    fs_subject_dir = '/imaging/dp01/toolboxes/mni2fs_devel/CC110033';
+    fs_subject_dir = '/imaging/dp01/freesurfer700/CC120120';
     % fn_mrirawnii = '/imaging/camcan/cc700/mri/pipeline/release004/data/aamod_convert_structural_00001/CC110045/structurals/sMR10033_CC110045-0003-00001-000192-01.nii';
-    fn_mrirawnii = '/imaging/camcan/cc700/mri/pipeline/release004/data/aamod_convert_structural_00001/CC110033/structurals/sMR10033_CC110033-0003-00001-000192-01.nii';
+    fn_mrirawnii = '/imaging/camcan/cc700/mri/pipeline/release004/data/aamod_convert_structural_00001/CC120120/structurals/sMR10033_CC120120-0003-00001-000192-01.nii';
     fn_mriT1 = [fs_subject_dir '/mri/T1.mgz'];
     fn_mriT1nii = [fs_subject_dir '/mri/T1.nii'];
     fn_mriregT1nii = [fs_subject_dir '/mri/regT1.nii'];
@@ -29,7 +29,7 @@ for hemi = 1:2
     fn_surf_mid = sprintf('%s/surf/%s.mid', fs_subject_dir, hem);
     fn_surf_pial = sprintf('%s/surf/%s.pial', fs_subject_dir, hem);
     
-    nvertices = 20000; % won't be perfectly accurate, but close
+    nvertices = 10000; % won't be perfectly accurate, but close
     inflate_niterations = 55;
     inflate_nwrite = 10;
     
@@ -130,28 +130,45 @@ NIItest.img(90+(-x:x),28+(-x:x),112+(-x:x)) = 100;
 close all
 figure('Color','w','position',[20 72 800 600])
 
-% Should probably make a new option (.subjfolder | default = colin27)
-% All other options would then stay the same to avoid confusion.
-
 % Load and Render the FreeSurfer surface
 S = [];
 S.hem = 'lh'; % Choose the hemesphere 'lh' or 'rh'
 % S.inflationstep = 6; % 1 no inflation, 6 fully inflated
-S.fsdir = fs_subject_dir; % when this is set, 
-S.plotsurf = 'smoothwm.inflated.dec';
-S.lookupsurf = 'smoothwm.dec';
-S.decimation = false; % Decimate the surface for speed. (Use FALSE for publishable quality figures).
+S.fsdir = fs_subject_dir; % when this is set, all functions use subject specific data
+S.plotsurf = 'pial.dec';
+S.lookupsurf = 'pial.dec';
 % S.curvdata = 'rh.smoothwm.dec.curv';
-S.curvecontrast = [-0.2 0.2];
+S.curvecontrast = [0 0];
+S.decimation = false;
+S = mni2fs_brain(S);
+
+% Add overlay, theshold to 98th percentile
+S.mnivol = NIItest;
+S.clims = [0.5 1]; % overlay masking below 98th percentile
+S.surfchecks = false;
+S = mni2fs_overlay(S);
+
+S = [];
+S.hem = 'rh'; % Choose the hemesphere 'lh' or 'rh'
+% S.inflationstep = 6; % 1 no inflation, 6 fully inflated
+S.fsdir = fs_subject_dir; % when this is set, all functions use subject specific data
+S.plotsurf = 'pial.dec';
+S.lookupsurf = 'pial.dec';
+% S.curvdata = 'rh.smoothwm.dec.curv';
+S.curvecontrast = [0 0];
+S.decimation = false;
 S = mni2fs_brain(S);
 view([-90 0]) % Change camera angle
 
 % Add overlay, theshold to 98th percentile
 S.mnivol = NIItest;
 S.clims = [0.5 1]; % overlay masking below 98th percentile
-S.surfchecks = true;
+S.surfchecks = false;
 S = mni2fs_overlay(S);
-mni2fs_lights % Dont forget to turn on the lights!
+
+
+
+mni2fs_lights; % Dont forget to turn on the lights!
 
 % Optional - lighting can be altered after rendering
 
