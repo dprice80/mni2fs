@@ -126,7 +126,7 @@ elseif isstruct(S.mnivol)
     if any(testT(:) < 0)
         disp(testT)
         warning(sprintf('Negative value in NII header transformation matrix. \nAutomatically reslicing image. \nTo save time reslice the image using reslice_nii(old.nii, new.nii)')) %#ok<SPWRN>
-        NII = reslice_return_nii([NII.fileprefix, '.m']);
+        NII = reslice_return_nii([NII.fileprefix, '.nii']);
         S.mnivol = NII;
     end
 end
@@ -181,10 +181,10 @@ end
 S.p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:));
 
 if sum(ind) ~= 0
-    
+
     Va = ones(sum(ind),1).* S.overlayalpha; % can put alpha in here.
     set(S.p,'FaceVertexCData',Vsurf(ind),'FaceVertexAlphaData',Va,'FaceAlpha',S.overlayalpha)
-    
+
     switch S.climstype
         case 'abs'
             if ischar(S.lastcolormapused)
@@ -198,16 +198,16 @@ if sum(ind) ~= 0
         case 'pos'
             set(gca,'CLim',S.clims)
     end
-    
+
     colormap(S.lastcolormapused)
-    
+
     shading flat
     axis equal
     axis vis3d
     hold on
     axis off
     freezeColors
-    
+
 % Add toolbar if one does not exist.
 
 mni2fs_addtoolbar();
@@ -220,5 +220,5 @@ if S.decimated == false
 else
     rotate3d
 end
-    
+
 end
