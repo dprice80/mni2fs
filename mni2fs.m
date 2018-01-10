@@ -126,7 +126,7 @@ classdef mni2fs < handle
             rotate3d
         end
         
-        function overlay(obj, varargin)
+        function h = overlay(obj, varargin)
             
             pardef = {
                 'clims_perc' 0.98
@@ -150,22 +150,15 @@ classdef mni2fs < handle
             
             obj.So = obj.Sb;
             
-            switch obj.hem
-                case 'both'
-                    for ii = 1:2
-                        obj.So{ii}.mnivol = args.mnivol;
-                        obj.So{ii}.clims_perc = 0.98;
-                        obj.So{ii} = mni2fs_overlay(obj.So{ii});
-                    end
-                case {'lh' 'rh'}
-                    obj.So{1}.mnivol = args.mnivol;
-                    obj.So{1}.clims_perc = 0.98;
-                    obj.So{1} = mni2fs_overlay(obj.So{1});
-                otherwise
+            for ii = 1:length(obj.So)
+                obj.So{ii}.mnivol = args.mnivol;
+                obj.So{ii}.clims_perc = args.clims_perc;
+                obj.So{ii} = mni2fs_overlay(obj.So{ii});
+                h(ii) = obj.So{ii}.p;
             end
+
             mni2fs_lights % Dont forget to turn on the lights!
         end
-        
 
     end
     
