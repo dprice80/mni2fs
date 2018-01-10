@@ -1,16 +1,17 @@
 classdef mni2fs < handle
     
     properties
-        hem = 'both'
-        plotsurf = 'mid'
-        surfacecolorspec = false
-        surfacealpha = 1
-        lookupsurf = 'smoothwm'
-        decimation = true
-        inflationstep = 4
+        hem
+        plotsurf
+        surfacecolorspec
+        surfacealpha
+        lookupsurf
+        decimation
+        inflationstep
         Sb
         Sr
         So
+        toolboxpath
     end
     
     properties (Hidden)
@@ -18,9 +19,32 @@ classdef mni2fs < handle
     end
     
     methods
-        %         function obj = mni2fs()
-        %
-        %         end
+        function obj = mni2fs(varargin)
+            obj.toolboxpath = fileparts(mfilename('fullpath'));
+            
+            % Parse arguments
+            pardef = {
+                'hem'               'both'
+                'plotsurf'          'mid'
+                'surfacecolorspec'  false
+                'surfacealpha'      1
+                'lookupsurf'        'smoothwm'
+                'decimation'        true
+                'inflationstep'     4
+                };
+            
+            args = varargparse(varargin, pardef(:,1), pardef(:,2));
+            
+            fns = fieldnames(args);
+            
+            % Assign parsed arguments to object properties
+            for ii = 1:length(fns)
+                obj.(fns{ii}) = args.(fns{ii});
+            end
+            
+            fprintf('Object created with the following properties\n\n')
+            disp(obj)
+        end
         
         %         function display(obj)
         %             disp(obj.fields) %#ok<MCNPN>
@@ -60,9 +84,6 @@ classdef mni2fs < handle
         end
         
         function h = roi(obj, varargin)
-            if isempty(obj.Sb)
-                obj.brain
-            end
             
             pardef = {
                 'roicolorspec' 'r'
@@ -71,12 +92,16 @@ classdef mni2fs < handle
                 };
             
             if nargin == 1
-                disp('Default optionSo{1}. Specift arguments using name value pairs')
+                disp('Default options: (specify arguments using name value pairs)')
                 disp(pardef)
                 return
             end
             
-            args = varargparse(varargin, pardef(:,1), pardef(:,2));
+            obj.checkbrain();
+            
+            if length(varargin) > 1
+                args = varargparse(varargin, pardef(:,1), pardef(:,2));
+            end
             
             if ischar(args.mnivol)
                 NII = load_nii(args.mnivol);
@@ -87,25 +112,15 @@ classdef mni2fs < handle
                 error('mnivol should either be a character (path to volume) or struct (nifti loaded using load_nii)')
             end
             
-            switch obj.hem
-                case 'both'
-                    for si = 1:2
-                        % Plot an ROI, and make it semi transparent
-                        obj.Sr{si} = obj.Sb{si}; % need to use data loaded from brain
-                        obj.Sr{si}.mnivol = NII;
-                        obj.Sr{si}.roicolorspec = args.roicolorspec; % color. Can also be a three-element vector
-                        obj.Sr{si}.roialpha = 1; % transparency 0-1
-                        obj.Sr{si} = mni2fs_roi(obj.Sr{si});
-                        h(si,:) = obj.Sr{si}.p;
-                    end
-                case {'lh' 'rh'}
-                    obj.Sr{1} = obj.Sb{1}; % need to use data loaded from brain
-                    obj.Sr{1}.mnivol = NII;
-                    obj.Sr{1}.roicolorspec = args.roicolorspec; % color. Can also be a three-element vector
-                    obj.Sr{1}.roialpha = 1; % transparency 0-1
-                    obj.Sr{1} = mni2fs_roi(obj.Sr{1});
-                otherwise
-                    error('Property hem should either be both, lh, or rh')
+            
+            for si = 1:length(obj.Sb)
+                % Plot an ROI, and make it semi transparent
+                obj.Sr{si} = obj.Sb{si}; % need to use data loaded from brain
+                obj.Sr{si}.mnivol = NII;
+                obj.Sr{si}.roicolorspec = args.roicolorspec; % color. Can also be a three-element vector
+                obj.Sr{si}.roialpha = 1; % transparency 0-1
+                obj.Sr{si} = mni2fs_roi(obj.Sr{si});
+                h(si,:) = obj.Sr{si}.p; %#ok<AGROW>
             end
             mni2fs_lights
             rotate3d
@@ -113,38 +128,72 @@ classdef mni2fs < handle
         
         function overlay(obj, varargin)
             
-            if isempty(obj.Sb)
-                obj.brain
-            end
-            
             pardef = {
                 'clims_perc' 0.98
                 'roialpha' 1
-                'mnivol' '/imaging/at07/templates/HarvardOxford-cort-maxprob-thr0-2mm.nii'
+                'mnivol' [obj.toolboxpath '/examples/AudMean.nii']
                 };
             
             if nargin == 1
-                disp('Default optionSo{1}. Specift arguments using name value pairs')
+                disp('Default options: (specify arguments using name value pairs)')
                 disp(pardef)
                 return
             end
             
+            obj.checkbrain();
+            
             args = varargparse(varargin, pardef(:,1), pardef(:,2));
             
-            if ischar(args.mnivol)
-
-            elseif isstruct(args.mnivol)
-
-            else
+            if ~(ischar(args.mnivol) || isstruct(args.mnivol))
                 error('mnivol should either be a character (path to volume) or struct (nifti loaded using load_nii)')
             end
-            So = Sb;
-            So{1}.mnivol = args.mnivol;
-            So{1}.clims_perc = 0.98;
-            So{1} = mni2fs_overlay(So{1});
-            view([-90 0]) % change camera angle
+            
+            obj.So = obj.Sb;
+            
+            switch obj.hem
+                case 'both'
+                    for ii = 1:2
+                        obj.So{ii}.mnivol = args.mnivol;
+                        obj.So{ii}.clims_perc = 0.98;
+                        obj.So{ii} = mni2fs_overlay(obj.So{ii});
+                    end
+                case {'lh' 'rh'}
+                    obj.So{1}.mnivol = args.mnivol;
+                    obj.So{1}.clims_perc = 0.98;
+                    obj.So{1} = mni2fs_overlay(obj.So{1});
+                otherwise
+            end
             mni2fs_lights % Dont forget to turn on the lights!
         end
+        
+
+    end
+    
+    methods (Hidden)
+        function checkbrain(obj)
+            % May extend this function at some point
+            if isempty(obj.Sb)
+                obj.brain
+                %             else
+                %                 for ii = 1:length(obj.Sb)
+                %                 try
+                %                     get(obj.Sb{ii}.p)
+                %                 catch
+                %                     obj.brain
+                %                 end
+            end
+        end
+
+        function findprop(obj);     disp(obj); end
+        function gt(obj);           disp(obj); end
+        function le(obj);           disp(obj); end
+        function lt(obj);           disp(obj); end
+        function ne(obj);           disp(obj); end
+        function notify(obj);       disp(obj); end
+        function ge(obj);           disp(obj); end
+        function findobj(obj);      disp(obj); end
+        function addlistener(obj);  disp(obj); end
+        function eq(obj);           disp(obj); end
     end
 end
 
