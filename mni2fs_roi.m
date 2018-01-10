@@ -133,13 +133,21 @@ switch S.hem
         S.gfsinf.vertices(:,1) = S.gfsinf.vertices(:,1)+S.separateHem;
 end
 
-ind = Vsurf~=0;
+Vu = unique(Vsurf);
+Vu(Vu == 0) = [];
+
+if length(S.roialpha) == 1
+    S.roialpha = ones(size(Vu))*S.roialpha;
+end
+    
+for ii = 1:length(Vu)
+ind = Vsurf == Vu(ii);
 
 if sum(ind) == 0
     error('No values found on the surface')
 end
 
-p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:),'EdgeColor','k','EdgeAlpha',0);
+S.p(ii) = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:),'EdgeColor','k','EdgeAlpha',0);
 
 if ischar(S.roicolorspec)
     colortable = [1 1 0; 1 0 1; 0 1 1; 1 0 0; 0 1 0; 0 0 1; 1 1 1; 0 0 0];
@@ -147,12 +155,13 @@ if ischar(S.roicolorspec)
     cdata = colortable(strcmp(colorlabels,S.roicolorspec),:);
     cdata = repmat(cdata,sum(ind),1);
 else
-    cdata = repmat(S.roicolorspec,sum(ind),1);
+    cdata = repmat(S.roicolorspec(ii,:),sum(ind),1);
 end
 
-Va = ones(size(cdata,1),1).* S.roialpha; % can put alpha in here.
+Va = ones(size(cdata,1),1).* S.roialpha(ii); % can put alpha in here.
 
-set(p,'FaceVertexCData',cdata,'FaceVertexAlphaData',Va,'FaceAlpha',S.roialpha);
+set(S.p(ii),'FaceVertexCData',cdata,'FaceVertexAlphaData',Va,'FaceAlpha',S.roialpha(ii));
+end
 
 shading flat
 
