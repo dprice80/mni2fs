@@ -66,7 +66,6 @@ classdef mni2fs < handle
                     obj.Sb{2}.hem = 'rh'; % choose the hemesphere 'lh' or 'rh'
                     obj.Sb{2} = mni2fs_brain(obj.Sb{2});
                     h(2) = obj.Sb{2}.p;
-                    mni2fs_lights
                 case {'lh' 'rh'}
                     obj.Sb{1} = [];
                     obj.Sb{1}.hem = obj.hem; % choose the hemesphere 'lh' or 'rh'
@@ -76,17 +75,17 @@ classdef mni2fs < handle
                     obj.Sb{1}.decimation = obj.decimation;
                     obj.Sb{1} = mni2fs_brain(obj.Sb{1});
                     h(1) = obj.Sb{1}.p;
-                    mni2fs_lights
                 otherwise
                     error('Property hem should either be both, lh, or rh')
             end
+            mni2fs_lights;
             rotate3d
         end
         
         function h = roi(obj, varargin)
             
             pardef = {
-                'roicolorspec' 'r'
+                'roicolorspec' 'lines'
                 'roialpha' 1
                 'mnivol' '/imaging/at07/templates/HarvardOxford-cort-maxprob-thr0-2mm.nii'
                 };
@@ -112,15 +111,21 @@ classdef mni2fs < handle
                 error('mnivol should either be a character (path to volume) or struct (nifti loaded using load_nii)')
             end
             
+            if strcmp(args.roicolorspec, 'lines')
+                disp('Using default colourmap (lines). See help mni2fs_roi for options')
+                Nlines = length(unique(NII.img));
+                args.roicolorspec = repmat(lines, ceil(Nlines/length(lines)), 1);
+            end
             
             for si = 1:length(obj.Sb)
-                % Plot an ROI, and make it semi transparent
+                % Plot an ROI, and make it semi-transparent
                 obj.Sr{si} = obj.Sb{si}; % need to use data loaded from brain
                 obj.Sr{si}.mnivol = NII;
                 obj.Sr{si}.roicolorspec = args.roicolorspec; % color. Can also be a three-element vector
                 obj.Sr{si}.roialpha = 1; % transparency 0-1
+                obj.Sr{si}.hem = obj.Sb{si}.hem;
                 obj.Sr{si} = mni2fs_roi(obj.Sr{si});
-                h(si,:) = obj.Sr{si}.p; %#ok<AGROW>
+                h{si} = obj.Sr{si}.p; %#ok<AGROW>
             end
             mni2fs_lights
             rotate3d
@@ -130,8 +135,10 @@ classdef mni2fs < handle
             
             pardef = {
                 'clims_perc' 0.98
+                'clims' 'auto' 
                 'roialpha' 1
                 'mnivol' [obj.toolboxpath '/examples/AudMean.nii']
+                'qualcheck' false
                 };
             
             if nargin == 1
@@ -153,8 +160,10 @@ classdef mni2fs < handle
             for ii = 1:length(obj.So)
                 obj.So{ii}.mnivol = args.mnivol;
                 obj.So{ii}.clims_perc = args.clims_perc;
+                obj.So{ii}.clims = args.clims;
+                obj.So{ii}.qualcheck = args.qualcheck;
                 obj.So{ii} = mni2fs_overlay(obj.So{ii});
-                h(ii) = obj.So{ii}.p;
+                h(ii) = obj.So{ii}.p; %#ok<AGROW>
             end
 
             mni2fs_lights % Dont forget to turn on the lights!

@@ -3,12 +3,12 @@ close all
 clc
 
 % Replace the following path with the path to the mni2fs toolbox folder
-toolboxpath = '/imaging/dp01/toolboxes/mni2fs/';
-addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
+toolboxpath = fileparts(which('mni2fs'));
+
 
 %% Simple Auto Wrapper - All Settings are at Default and Scaling is Automatic
 close all
-mni2fs_auto(fullfile(toolboxpath, 'examples/AudMean.nii'),'lh')
+mni2fs_auto('/imaging/dp01/results/av_nature/vbm/mediation/GM_RobustParfor_NCpaper_v2/AudStr/M-Y_effect.hdr','lh')
 
 %% Plot both hemispheres
 close all
@@ -36,9 +36,10 @@ S.roialpha = 0.5; % transparency 0-1
 S = mni2fs_roi(S); 
 
 % Add overlay, theshold to 98th percentile
-NIFTI = load_nii(fullfile(toolboxpath, 'examples/AudMean.nii')); % mnivol can be a NIFTI structure
+NIFTI = '/imaging/dp01/results/av_nature/vbm/mediation/GM_RobustParfor_NCpaper_v2/AudStr/M-Y_effect.hdr'; % mnivol can be a NIFTI structure
 S.mnivol = NIFTI;
 S.clims_perc = 0.98; % overlay masking below 98th percentile
+S.climstype = 'pos';
 S = mni2fs_overlay(S); 
 view([-90 0]) % change camera angle
 mni2fs_lights % Dont forget to turn on the lights!

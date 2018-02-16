@@ -57,6 +57,13 @@ if ~isfield(S,'lookupsurf'); S.lookupsurf = 'smoothwm'; end
 if ~isfield(S,'decimation'); S.decimation = 20000; end
 if ~isfield(S,'decimated'); S.decimated = false; end
 
+V = ver('MATLAB');
+if S.decimation == false
+    if str2double(V.Version) == 8.5
+        warning('There is a known issue with high resolution plotting in Matlab 2015a. Use decimated surface, or try another version.')
+    end
+end
+
 if ~isfield(S,'priv')
     % Set default values for private settings
     S.priv.lh.sep = false;

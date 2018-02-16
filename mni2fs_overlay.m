@@ -45,6 +45,8 @@ if ~isfield(S,'lookupsurf'); S.lookupsurf = 'smoothwm'; end
 if ~isfield(S,'plotsurf'); S.plotsurf = 'inflated'; end
 if ~isfield(S,'decimation'); S.decimation = true; end
 if ~isfield(S,'decimated'); S.decimated = false; end
+if ~isfield(S,'framerate'); S.framerate = 10; end
+if ~isfield(S,'qualcheck'); S.qualcheck = false; end
 
 S.lastcolormapused = S.colormap;
 
@@ -116,7 +118,7 @@ if ischar(S.mnivol)
     NII = load_untouch_nii(S.mnivol);
     testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
     if any(testT(:) < 0)
-        warning(sprintf('Transformation matrix contains a negative diagonal element. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii')) %#ok<SPWRN>
+        warning(sprintf('Image not resliced. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii')) %#ok<SPWRN>
         NII = reslice_return_nii(S.mnivol);
         S.mnivol = NII;
     end
@@ -125,7 +127,7 @@ elseif isstruct(S.mnivol)
     testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
     if any(testT(:) < 0)
         disp(testT)
-        warning(sprintf('Negative value in NII header transformation matrix. \nAutomatically reslicing image. \nTo save time reslice the image using reslice_nii(old.nii, new.nii)')) %#ok<SPWRN>
+        warning(sprintf('Image not resliced. \nAutomatically reslicing image. \nTo save time reslice the image using reslice_nii(old.nii, new.nii)')) %#ok<SPWRN>
         NII = reslice_return_nii([NII.fileprefix, '.nii']);
         S.mnivol = NII;
     end
@@ -137,14 +139,20 @@ end
 
 if S.smoothdata > 0
     disp('Smoothing Volume')
-    NII.img = smooth3(NII.img,'gaussian',15,S.smoothdata);
+    for si = 1:size(NII.img,4)
+        NII.img(:,:,:,si) = smooth3(NII.img(:,:,:,si),'gaussian',5,S.smoothdata);
+    end
 end
 
 % Get the average from the three vertex values for each face
 V = S.gfs.vertices(S.gfs.faces(:,1),:)/3;
 V = V+S.gfs.vertices(S.gfs.faces(:,2),:)/3;
 V = V+S.gfs.vertices(S.gfs.faces(:,3),:)/3;
-Vsurf(:,1) = mni2fs_extract(NII,V,S.interpmethod);
+
+disp('Interpolating Data')
+for si = 1:size(NII.img,4)
+    Vsurf(:,si) = mni2fs_extract(NII, V, S.interpmethod, si, S.qualcheck); %#ok<AGROW>
+end
 
 switch S.hem
     case 'lh'
@@ -156,9 +164,9 @@ end
 if ischar(S.clims)
     if strcmp(S.clims,'auto')
         if strcmp(S.climstype,'abs')
-            S.clims = [quantile2(abs(Vsurf), S.clims_perc, [], 'R-5') max(abs(Vsurf))];
+            S.clims = [quantile2(abs(Vsurf(:)), S.clims_perc, [], 'R-5') max(abs(Vsurf(:)))];
         else
-            S.clims = [quantile2(Vsurf,S.clims_perc, [], 'R-5') max(Vsurf)];
+            S.clims = [quantile2(Vsurf(:),S.clims_perc, [], 'R-5') max(Vsurf(:))];
         end
     else
         error('Unrecognised value for S.clims')
@@ -166,54 +174,11 @@ if ischar(S.clims)
 end
 
 if numel(S.clims) == 1
-    S.clims(2) = max(abs(Vsurf));
+    S.clims(2) = max(abs(Vsurf(:)));
 end
 
-switch S.climstype
-    case 'abs'
-        ind = abs(Vsurf) >= S.clims(1);
-    case 'pos'
-        ind = Vsurf >= S.clims(1);
-    otherwise
-        error('Correct values for .climstype are ''abs'' or ''pos''')
-end
-
-S.p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:));
-
-if sum(ind) ~= 0
-
-    Va = ones(sum(ind),1).* S.overlayalpha; % can put alpha in here.
-    set(S.p,'FaceVertexCData',Vsurf(ind),'FaceVertexAlphaData',Va,'FaceAlpha',S.overlayalpha)
-
-    switch S.climstype
-        case 'abs'
-            if ischar(S.lastcolormapused)
-                col = colormap(S.lastcolormapused);
-            else
-                col = S.lastcolormapused;
-            end
-            coli = mni2fs_rescale_colormap(col,S.clims);
-            S.lastcolormapused = coli;
-            set(gca,'CLim',[-S.clims(2) S.clims(2)])
-        case 'pos'
-            set(gca,'CLim',S.clims)
-    end
-
-    colormap(S.lastcolormapused)
-
-    shading flat
-    axis equal
-    axis vis3d
-    hold on
-    axis off
-    freezeColors
-
-% Add toolbar if one does not exist.
-
+% Set up figure
 mni2fs_addtoolbar();
-
-set(gca,'Tag','overlay')
-
 if S.decimated == false
     rot = rotate3d;
     set(rot,'RotateStyle','box')
@@ -221,4 +186,82 @@ else
     rotate3d
 end
 
+axis equal
+axis vis3d
+hold on
+axis off
+
+loopi = 0;
+
+if size(Vsurf, 2) > 1
+    disp('Looping 3 times')
+    looplim = size(Vsurf, 2) * 3;
+else
+    looplim = 0;
+end
+
+while loopi <= looplim
+    
+    loopi = loopi + 1;
+    if loopi > 1
+        delete(S.p)
+    end
+    
+    for si = 1:size(Vsurf,2)
+        ts = tic;
+        switch S.climstype
+            case 'abs'
+                ind = abs(Vsurf(:,si)) >= S.clims(1);
+            case 'pos'
+                ind = Vsurf(:,si) >= S.clims(1);
+            case 'neg'
+                ind = Vsurf(:,si) <= S.clims(1);
+            otherwise
+                error('Correct values for .climstype are ''abs'' or ''pos''')
+        end
+        
+        if si == 1
+            S.p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:));
+            Va = ones(sum(ind),1).* S.overlayalpha; % can put alpha in here.
+            set(S.p,'FaceVertexCData',Vsurf(ind,si),'FaceVertexAlphaData',Va,'FaceAlpha',S.overlayalpha)
+            mni2fs_lights
+        else
+            set(S.p,'Vertices',S.gfsinf.vertices, 'Faces',S.gfsinf.faces(ind,:), 'FaceVertexCData',Vsurf(ind,si))
+        end
+        shading flat
+        
+        if sum(ind) ~= 0
+            
+            switch S.climstype
+                case 'abs'
+                    if ischar(S.lastcolormapused)
+                        col = colormap(S.lastcolormapused);
+                    else
+                        col = S.lastcolormapused;
+                    end
+                    coli = mni2fs_rescale_colormap(col,S.clims);
+                    S.lastcolormapused = coli;
+                    set(gca,'CLim',[-S.clims(2) S.clims(2)])
+                case 'pos'
+                    set(gca,'CLim',S.clims)
+                case 'neg'
+                    set(gca,'CLim',S.clims)
+            end
+            
+            colormap(S.lastcolormapused)
+            
+        end
+        
+        % Add toolbar if one does not exist.
+        te = toc(ts);
+        if 1/S.framerate-te > 0
+            pause(1/S.framerate-te)
+        else
+            pause(0.001)
+        end
+        
+        freezeColors
+        set(gca,'Tag','overlay')
+        
+    end
 end

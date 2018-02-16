@@ -7,10 +7,6 @@ if str2double(V.Version) < 8
     warning('The toolbox has not been tested in this version of Matlab. Please use a later version of matlab (preferably 2013a or later).')
 end
 
-if str2double(V.Version) == 8.5
-    warning('There is a known issue with high resolution plotting in this version of Matlab. Use decimated surface, or try another version.')
-end
-
 if ~exist([thisfolder '/surf'],'dir')
     warning('SURF FOLDER NOT FOUND:')
     disp('Please download the support files (.zip) from')
