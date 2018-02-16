@@ -6,6 +6,10 @@ function [Vsurf] = mni2fs_extract(NII,V,InterpMethod)
 % Vsurf is an Mx1 array of extracted values, one for each vertex
 
 Tmni = [NII.hdr.hist.srow_x; NII.hdr.hist.srow_y; NII.hdr.hist.srow_z; 0 0 0 1];
+if any([NII.hdr.hist.quatern_b NII.hdr.hist.quatern_c NII.hdr.hist.quatern_d])
+    niitrans = mni2fs_load_affine(NII);
+    Tmni = niitrans.hdr.hist.old_affine;
+end
 
 sz = size(NII.img);
 [X, Y, Z] = ndgrid(1:sz(1),1:sz(2),1:sz(3));
