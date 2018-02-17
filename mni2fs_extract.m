@@ -16,7 +16,7 @@ L = length(X);
 
 XYZmni = [X Y Z];
 
-XYZmni = [XYZmni ones(L,1)]*Tmni'; % transform from voxel to mni space
+XYZmni = [XYZmni-1 ones(L,1)]*Tmni'; % transform from voxel to mni space
 
 X = reshape(XYZmni(:,1),sz);
 Y = reshape(XYZmni(:,2),sz);

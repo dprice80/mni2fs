@@ -3,12 +3,12 @@ close all
 clc
 
 % Replace the following path with the path to the mni2fs toolbox folder
-toolboxpath = '/imaging/dp01/toolboxes/mni2fs/';
+toolboxpath = '/imaging/dp01/toolboxes/mni2fs/stable/';
 addpath(genpath(toolboxpath)) % will add all subfolders and dependencies
 
 %% Simple Auto Wrapper - All Settings are at Default and Scaling is Automatic
 close all
-mni2fs_auto(fullfile(toolboxpath, 'examples/AudMean.nii'),'lh')
+mni2fs_auto(fullfile(toolboxpath, 'examples/AudMean.nii'),'rh')
 
 %% Plot both hemispheres
 close all
@@ -25,8 +25,8 @@ S = [];
 S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
 S.inflationstep = 6; % 1 no inflation, 6 fully inflated
 S.plotsurf = 'inflated';
-S.lookupsurf = 'mid';
-S.decimation = true; % Decimate the surface for speed. (Use FALSE for publishable quality figures).
+S.lookupsurf = 'smoothwm';
+S.decimation = false; % Decimate the surface for speed. (Use FALSE for publishable quality figures).
 S = mni2fs_brain(S);
 
 % Plot an ROI, and make it semi transparent

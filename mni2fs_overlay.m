@@ -114,21 +114,8 @@ end
 
 if ischar(S.mnivol)
     NII = load_untouch_nii(S.mnivol);
-    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
-    if any(testT(:) < 0)
-        warning(sprintf('Transformation matrix contains a negative diagonal element. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii')) %#ok<SPWRN>
-        NII = reslice_return_nii(S.mnivol);
-        S.mnivol = NII;
-    end
 elseif isstruct(S.mnivol)
     NII = S.mnivol;
-    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
-    if any(testT(:) < 0)
-        disp(testT)
-        warning(sprintf('Negative value in NII header transformation matrix. \nAutomatically reslicing image. \nTo save time reslice the image using reslice_nii(old.nii, new.nii)')) %#ok<SPWRN>
-        NII = reslice_return_nii([NII.fileprefix, '.nii']);
-        S.mnivol = NII;
-    end
 end
 
 if isinteger(NII.img) % Convert NII image to single
@@ -137,7 +124,7 @@ end
 
 if S.smoothdata > 0
     disp('Smoothing Volume')
-    NII.img = smooth3(NII.img,'gaussian',15,S.smoothdata);
+    NII.img = smooth3(NII.img,'gaussian',S.smoothdata*3,S.smoothdata);
 end
 
 % Get the average from the three vertex values for each face
