@@ -2,7 +2,7 @@
 % Darren Price
 % mni2fs
 
-function nii = reslice_return_nii(old_fn, voxel_size, verbose, bg, method, img_idx, preferredForm)
+function nii = mni2fs_load_affine(old_fn, voxel_size, verbose, bg, method, img_idx, preferredForm)
 
    if ~exist('old_fn','var') %#ok<*OR2>
       error('Usage: reslice_nii(old_fn, new_fn, [voxel_size], [verbose], [bg], [method], [img_idx])');

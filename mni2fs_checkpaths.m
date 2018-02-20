@@ -3,7 +3,7 @@ function mni2fs_checkpaths
 thisfolder = fileparts(mfilename('fullpath'));
 
 V = ver('MATLAB');
-if str2double(V.Version) < 8.1
+if str2double(V.Version) < 8
     warning('The toolbox has not been tested in this version of Matlab. Please use a later version of matlab (preferably 2013a or later).')
 end
 

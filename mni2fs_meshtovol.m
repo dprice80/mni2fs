@@ -1,5 +1,5 @@
 function [NII] = mni2fs_meshtovol(data,g,vol,smooth,volsmooth)
-% Test function for converting from a colin brain to a high res mesh
+% Test function for converting from a brain mesh to a high res volume
 % Uses some functionality grafted from SPM12
 
 vol = spm_vol(vol);

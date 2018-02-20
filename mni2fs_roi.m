@@ -106,9 +106,13 @@ else
 end
 
 if ischar(S.mnivol)
-    NII = load_untouch_nii(S.mnivol);
+    NII = mni2fs_load_nii(S.mnivol);
 elseif isstruct(S.mnivol)
-    NII = S.mnivol;
+    if ~isfield(S.mnivol, 'loadmethod')
+        error('You must use mni2fs_load_nii to preload the nifti file.');
+    else
+        NII = S.mnivol;
+    end
 end
 
 if isinteger(NII.img) % Convert NII image to double
@@ -133,26 +137,35 @@ switch S.hem
         S.gfsinf.vertices(:,1) = S.gfsinf.vertices(:,1)+S.separateHem;
 end
 
-ind = Vsurf~=0;
+Vu = unique(Vsurf);
+Vu(Vu == 0) = [];
 
-if sum(ind) == 0
-    error('No values found on the surface')
+if length(S.roialpha) == 1
+    S.roialpha = ones(size(Vu))*S.roialpha;
 end
 
-p = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:),'EdgeColor','k','EdgeAlpha',0);
-
-if ischar(S.roicolorspec)
-    colortable = [1 1 0; 1 0 1; 0 1 1; 1 0 0; 0 1 0; 0 0 1; 1 1 1; 0 0 0];
-    colorlabels = {'y' 'm' 'c' 'r' 'g' 'b' 'w' 'k'};
-    cdata = colortable(strcmp(colorlabels,S.roicolorspec),:);
-    cdata = repmat(cdata,sum(ind),1);
-else
-    cdata = repmat(S.roicolorspec,sum(ind),1);
+for ii = 1:length(Vu)
+    ind = Vsurf == Vu(ii);
+    
+    if sum(ind) == 0
+        error('No values found on the surface')
+    end
+    
+    S.p(ii) = patch('Vertices',S.gfsinf.vertices,'Faces',S.gfsinf.faces(ind,:),'EdgeColor','k','EdgeAlpha',0);
+    
+    if ischar(S.roicolorspec)
+        colortable = [1 1 0; 1 0 1; 0 1 1; 1 0 0; 0 1 0; 0 0 1; 1 1 1; 0 0 0];
+        colorlabels = {'y' 'm' 'c' 'r' 'g' 'b' 'w' 'k'};
+        cdata = colortable(strcmp(colorlabels,S.roicolorspec),:);
+        cdata = repmat(cdata,sum(ind),1);
+    else
+        cdata = repmat(S.roicolorspec(ii,:),sum(ind),1);
+    end
+    
+    Va = ones(size(cdata,1),1).* S.roialpha(ii); % can put alpha in here.
+    
+    set(S.p(ii),'FaceVertexCData',cdata,'FaceVertexAlphaData',Va,'FaceAlpha',S.roialpha(ii));
 end
-
-Va = ones(size(cdata,1),1).* S.roialpha; % can put alpha in here.
-
-set(p,'FaceVertexCData',cdata,'FaceVertexAlphaData',Va,'FaceAlpha',S.roialpha);
 
 shading flat
 
