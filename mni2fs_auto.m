@@ -44,7 +44,7 @@ S.mnivol = mnivol;
 if length(clims_perc) == 2
     S.clims = clims_perc;
 else
-    S.clims_= clims_perc;
+    S.clims_perc = clims_perc;
 end
 
 S.plotsurf = 'pial';
