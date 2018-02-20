@@ -1,4 +1,6 @@
 classdef mni2fs < handle
+    % TODO: use [T] = evalc('m.disp') to generate custom output. 
+    % Search through T, and append default options / additional info to each property.
     
     properties
         hem
@@ -123,7 +125,6 @@ classdef mni2fs < handle
                 obj.Sr{si}.mnivol = NII;
                 obj.Sr{si}.roicolorspec = args.roicolorspec; % color. Can also be a three-element vector
                 obj.Sr{si}.roialpha = 1; % transparency 0-1
-                obj.Sr{si}.hem = obj.Sb{si}.hem;
                 obj.Sr{si} = mni2fs_roi(obj.Sr{si});
                 h{si} = obj.Sr{si}.p; %#ok<AGROW>
             end

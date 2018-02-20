@@ -1,4 +1,4 @@
-function [NII] = mni2fs_meshtovol(data,g,vol,smooth,volsmooth)
+function [NII] = mni2fs_plotmesh(data,g,vol,smooth,volsmooth)
 % Test function for converting from a colin brain to a high res mesh
 % Uses some functionality grafted from SPM12
 

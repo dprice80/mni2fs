@@ -10,11 +10,7 @@ if nargin <= 4
     qualcheck = false;
 end
 
-Tmni = [NII.hdr.hist.srow_x; NII.hdr.hist.srow_y; NII.hdr.hist.srow_z; 0 0 0 1];
-if any([NII.hdr.hist.quatern_b NII.hdr.hist.quatern_c NII.hdr.hist.quatern_d])
-    niitrans = mni2fs_load_affine(NII);
-    Tmni = niitrans.hdr.hist.old_affine;
-end
+Tmni = NII.transform;
 
 sz = size(NII.img);
 sz = sz(1:3);

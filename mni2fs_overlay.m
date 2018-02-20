@@ -3,7 +3,7 @@ function [S] = mni2fs_overlay(S)
 %
 % Required fields
 %     .mnivol - NIFTI file in MNI space containing data to be plotted or a
-%               NIFTI structure obtained using load_nii(filename) or load_untouch_nii(filename)
+%               NIFTI structure obtained using mni2fs_load_nii(filename)
 %
 % Optional Fields
 %     .clims       one or two element vector, or 'auto' for automatic scaling
@@ -47,6 +47,10 @@ if ~isfield(S,'decimation'); S.decimation = true; end
 if ~isfield(S,'decimated'); S.decimated = false; end
 if ~isfield(S,'framerate'); S.framerate = 10; end
 if ~isfield(S,'qualcheck'); S.qualcheck = false; end
+
+if isempty(S.clims)
+    S.clims = 'auto';
+end
 
 S.lastcolormapused = S.colormap;
 
@@ -115,21 +119,12 @@ else
 end
 
 if ischar(S.mnivol)
-    NII = load_untouch_nii(S.mnivol);
-    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
-    if any(testT(:) < 0)
-        warning(sprintf('Image not resliced. \n Automatically reslicing image. \n. To save time in future, reslice the image using the following command: reslice(old.nii, resliced.nii')) %#ok<SPWRN>
-        NII = reslice_return_nii(S.mnivol);
-        S.mnivol = NII;
-    end
+    NII = mni2fs_load_nii(S.mnivol);
 elseif isstruct(S.mnivol)
-    NII = S.mnivol;
-    testT = [NII.hdr.hist.srow_x(1:3); NII.hdr.hist.srow_y(1:3); NII.hdr.hist.srow_z(1:3)];
-    if any(testT(:) < 0)
-        disp(testT)
-        warning(sprintf('Image not resliced. \nAutomatically reslicing image. \nTo save time reslice the image using reslice_nii(old.nii, new.nii)')) %#ok<SPWRN>
-        NII = reslice_return_nii([NII.fileprefix, '.nii']);
-        S.mnivol = NII;
+    if ~isfield(S.mnivol, 'loadmethod')
+        error('You must use mni2fs_load_nii to preload the nifti file.');
+    else
+        NII = S.mnivol;
     end
 end
 

@@ -1,7 +1,13 @@
 function [iso] = mni2fs_makeiso(NII,maskvals,colorvec,smoothval,Alpha,smoothsurf)
 
-if ~isstruct(NII)
-    NII = load_nii(NII);
+if ischar(NII)
+    NII = mni2fs_load_nii(NII);
+else
+    if ~isfield(S.mnivol, 'loadmethod')
+        error('You must use mni2fs_load_nii to preload the nifti file.');
+    else
+        NII = S.mnivol;
+    end
 end
 
 niimask = zeros(size(NII.img));

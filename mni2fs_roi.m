@@ -106,9 +106,13 @@ else
 end
 
 if ischar(S.mnivol)
-    NII = load_untouch_nii(S.mnivol);
+    NII = mni2fs_load_nii(S.mnivol);
 elseif isstruct(S.mnivol)
-    NII = S.mnivol;
+    if ~isfield(S.mnivol, 'loadmethod')
+        error('You must use mni2fs_load_nii to preload the nifti file.');
+    else
+        NII = S.mnivol;
+    end
 end
 
 if isinteger(NII.img) % Convert NII image to double
