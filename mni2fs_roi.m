@@ -69,13 +69,13 @@ end
 
 curv_fn = fullfile(thisfolder,['/surf/' S.hem 'curv.mat']);
 
-if ~isfield(S,'separateHem');
+if ~isfield(S,'separateHem')
     S.separateHem = S.inflationstep*10;
 end
 
 curvecontrast = [-0.2 0.2]; % 0.9 = black / white
 
-if ~isfield(S,'gfs');
+if ~isfield(S,'gfs')
     if iscell(surf_fn)
         S.gfs = export(gifti(surf_fn{1}));
         surfav = export(gifti(surf_fn{2}));
@@ -93,11 +93,11 @@ if ~isfield(S,'gfs');
     end
 end
 
-if ~isfield(S,'gfsinf');
+if ~isfield(S,'gfsinf')
     S.gfsinf = export(gifti(surfrender_fn));
     disp('The only available decimated surface currently contains 20000 vertices - will be updated to allow any value soon')
     if S.decimation ~= 0
-        dec = load(['/imaging/dp01/toolboxes/mni2fs/surf/vlocs_20000_' S.hem '.mat']);
+        dec = load(fullfile(thisfolder, ['/surf/vlocs_20000_' S.hem '.mat']));
         S.gfsinf.vertices = S.gfsinf.vertices(dec.vlocs,:);
         S.gfsinf.faces = dec.faces;
     end

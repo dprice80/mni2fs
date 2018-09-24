@@ -61,3 +61,17 @@ export_fig('filename.bmp','-bmp')
 myaa
 
 
+%%
+S = [];
+S.hem = 'lh'; % choose the hemesphere 'lh' or 'rh'
+S.inflationstep = 1; % 1 no inflation, 6 fully inflated
+S.plotsurf = 'inflated';
+S.lookupsurf = 'smoothwm';
+S.decimation = true; % Decimate the surface for speed. (Use FALSE for publishable quality figures).
+S.surfacealpha = 0.3;
+S.surfacecolorspec = [0.8 0.8 0.8];
+S = mni2fs_brain(S);
+mni2fs_makeiso('/imaging/dp01/toolboxes/mni2fs/stable/examples/HOA_heschlsL.nii', 1, [1 0.5 0.3], 3, 1, 0)
+mni2fs_lights
+view([0 90])
+
