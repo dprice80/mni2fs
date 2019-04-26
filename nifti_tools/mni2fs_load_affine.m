@@ -23,7 +23,7 @@ function nii = mni2fs_load_affine(old_fn, voxel_size, verbose, bg, method, img_i
    if ~exist('preferredForm','var') | isempty(preferredForm)
       preferredForm= 's';				% Jeff
    end
-   
+
    nii = load_nii_no_xform(old_fn, img_idx, 0, preferredForm);
 
    if ~ismember(nii.hdr.dime.datatype, [2,4,8,16,64,256,512,768])

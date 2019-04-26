@@ -1,5 +1,4 @@
 %  internal function
-
 %  'xform_nii.m' is an internal function called by "load_nii.m", so
 %  you do not need run this program by yourself. It does simplified
 %  NIfTI sform/qform affine transform, and supports some of the 
