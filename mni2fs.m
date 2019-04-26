@@ -10,10 +10,12 @@ classdef mni2fs < handle
         lookupsurf
         decimation
         inflationstep
+        curvcontrast
         Sb
         Sr
         So
         toolboxpath
+        mnivol
     end
     
     properties (Hidden)
@@ -24,12 +26,14 @@ classdef mni2fs < handle
         function obj = mni2fs(varargin)
             obj.toolboxpath = fileparts(mfilename('fullpath'));
             
-            % Parse arguments
+            mni2fs_checkpaths;
+            
             pardef = {
                 'hem'               'both'
                 'plotsurf'          'mid'
                 'surfacecolorspec'  false
                 'surfacealpha'      1
+                'curvcontrast'      0.15
                 'lookupsurf'        'smoothwm'
                 'decimation'        true
                 'inflationstep'     4
@@ -48,11 +52,28 @@ classdef mni2fs < handle
             disp(obj)
         end
         
-        %         function display(obj)
-        %             disp(obj.fields) %#ok<MCNPN>
-        %         end
-        
-        function h = brain(obj)
+        function h = brain(obj, varargin)
+
+            pardef = {
+                'hem'               'both'
+                'plotsurf'          'smoothwm'
+                'surfacecolorspec'  false
+                'surfacealpha'      1
+                'curvcontrast'      0.15
+                'lookupsurf'        'smoothwm'
+                'decimation'        true
+                'inflationstep'     4
+                'mnivol' []
+                };
+            
+            args = varargparse(varargin, pardef(:,1), pardef(:,2));
+            
+            fns = fieldnames(args);
+            
+            % Assign parsed arguments to object properties
+            for ii = 1:length(fns)
+                obj.(fns{ii}) = args.(fns{ii});
+            end
             
             switch obj.hem
                 case 'both'
@@ -64,10 +85,10 @@ classdef mni2fs < handle
                     obj.Sb{1}.decimation = obj.decimation;
                     obj.Sb{2} = obj.Sb{1};
                     obj.Sb{1} = mni2fs_brain(obj.Sb{1});
-                    h(1) = obj.Sb{1}.p;
+                    h(1) = obj.Sb{1}.brain.p;
                     obj.Sb{2}.hem = 'rh'; % choose the hemesphere 'lh' or 'rh'
                     obj.Sb{2} = mni2fs_brain(obj.Sb{2});
-                    h(2) = obj.Sb{2}.p;
+                    h(2) = obj.Sb{2}.brain.p;
                 case {'lh' 'rh'}
                     obj.Sb{1} = [];
                     obj.Sb{1}.hem = obj.hem; % choose the hemesphere 'lh' or 'rh'
@@ -76,7 +97,7 @@ classdef mni2fs < handle
                     obj.Sb{1}.lookupsurf = obj.lookupsurf;
                     obj.Sb{1}.decimation = obj.decimation;
                     obj.Sb{1} = mni2fs_brain(obj.Sb{1});
-                    h(1) = obj.Sb{1}.p;
+                    h(1) = obj.Sb{1}.brain.p;
                 otherwise
                     error('Property hem should either be both, lh, or rh')
             end
@@ -135,20 +156,25 @@ classdef mni2fs < handle
         function h = overlay(obj, varargin)
             
             pardef = {
-                'clims_perc' 0.98
+                'clims_perc' 0
                 'clims' 'auto' 
-                'roialpha' 1
+                'climstype' 'abs'
+                'interpmethod' 'linear'
+                'colormap' 'jet'
                 'mnivol' [obj.toolboxpath '/examples/AudMean.nii']
                 'qualcheck' false
+                'inflationstep' 4
                 };
+            
+            obj.checkbrain(varargin{:});
             
             if nargin == 1
                 disp('Default options: (specify arguments using name value pairs)')
                 disp(pardef)
                 return
+            elseif nargin == 2
+                varargin = {'mnivol',varargin{1}};
             end
-            
-            obj.checkbrain();
             
             args = varargparse(varargin, pardef(:,1), pardef(:,2));
             
@@ -162,7 +188,11 @@ classdef mni2fs < handle
                 obj.So{ii}.mnivol = args.mnivol;
                 obj.So{ii}.clims_perc = args.clims_perc;
                 obj.So{ii}.clims = args.clims;
+                obj.So{ii}.climstype = args.climstype;
+                obj.So{ii}.colormap = args.colormap;
+                obj.So{ii}.interpmethod = args.interpmethod;
                 obj.So{ii}.qualcheck = args.qualcheck;
+                obj.So{ii}.inflationstep = args.inflationstep;
                 obj.So{ii} = mni2fs_overlay(obj.So{ii});
                 h(ii) = obj.So{ii}.p; %#ok<AGROW>
             end
@@ -173,10 +203,10 @@ classdef mni2fs < handle
     end
     
     methods (Hidden)
-        function checkbrain(obj)
+        function checkbrain(obj, varargin)
             % May extend this function at some point
-            if isempty(obj.Sb)
-                obj.brain
+            if isempty(obj.Sb) || ~obj.Sb{1}.brain.p.isvalid
+                obj.brain(varargin{:})
                 %             else
                 %                 for ii = 1:length(obj.Sb)
                 %                 try
@@ -199,5 +229,3 @@ classdef mni2fs < handle
         function eq(obj);           disp(obj); end
     end
 end
-
-

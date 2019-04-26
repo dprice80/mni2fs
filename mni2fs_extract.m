@@ -36,6 +36,6 @@ if qualcheck
     NIIs = NII;
     ind = sub2ind(size(NII.img), Vmnivox(:,1), Vmnivox(:,2), Vmnivox(:,3));
     NIIs.img(ind) = NIIs.img(ind)+max(NIIs.img(:));
-    save_untouch_nii(NIIs,'/imaging/dp01/temp/test_surf.hdr')
-    view_nii(load_nii('/imaging/dp01/temp/test_surf.hdr'))
+    save_untouch_nii(NIIs,'/imaging/dp01/temp/test_surf')
+    view_nii(load_nii('/imaging/dp01/temp/test_surf'))
 end

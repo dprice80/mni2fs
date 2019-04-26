@@ -39,7 +39,7 @@ if ~isfield(S,'smoothdata'); S.smoothdata = 0; end
 if ~isfield(S,'clims_perc'); S.clims_perc = 0.8; end
 if ~isfield(S,'inflationstep'); S.inflationstep = 5; end
 if ~isfield(S,'colormap'); S.colormap = 'jet'; end
-if ~isfield(S,'interpmethod'); S.interpmethod = 'cubic'; end
+if ~isfield(S,'interpmethod'); S.interpmethod = 'nearest'; end
 if ~isfield(S,'overlayalpha'); S.overlayalpha = 1; end
 if ~isfield(S,'lookupsurf'); S.lookupsurf = 'smoothwm'; end
 if ~isfield(S,'plotsurf'); S.plotsurf = 'inflated'; end
@@ -86,11 +86,11 @@ switch S.lookupsurf
         error('Options for .surfacetype = inflated, smoothwm, or pial')
 end
 
-if ~isfield(S,'separateHem');
+if ~isfield(S,'separateHem')
     S.separateHem = (S.inflationstep-1)*10;
 end
 
-if ~isfield(S,'gfs');
+if ~isfield(S,'gfs')
     if iscell(surf_fn)
         S.gfs = export(gifti(surf_fn{1}));
         surfav = export(gifti(surf_fn{2}));
@@ -106,7 +106,7 @@ if ~isfield(S,'gfs');
     end
 end
 
-if ~isfield(S,'gfsinf');
+if ~isfield(S,'gfsinf')
     S.gfsinf = export(gifti(surfrender_fn));
     if S.decimation
         % Load / create the reduced path set indexes
