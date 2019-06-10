@@ -21,11 +21,15 @@ function nii = reslice_return_nii(old_fn, voxel_size, verbose, bg, method, img_i
    end
 
    if ~exist('preferredForm','var') | isempty(preferredForm)
-      preferredForm= 's';				% Jeff
+      preferredForm = 's';				% Jeff
    end
-
-   nii = load_nii_no_xform(old_fn, img_idx, 0, preferredForm);
-
+   
+   if ~isfield(old_fn, 'loadmethod')
+       nii = load_nii_no_xform(old_fn, img_idx, 0, preferredForm);
+   else
+       nii = old_fn;
+   end
+   
    if ~ismember(nii.hdr.dime.datatype, [2,4,8,16,64,256,512,768])
       error('Transform of this NIFTI data is not supported by the program.');
    end
@@ -200,6 +204,6 @@ function [nii] = load_nii_no_xform(filename, img_idx, old_RGB, preferredForm)
       M(4,4) = 1;
       nii.hdr.hist.old_affine = M;
    end
-
+  
    return					% load_nii_no_xform
 

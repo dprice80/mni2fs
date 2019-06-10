@@ -16,7 +16,7 @@ end
 
 filecheck = true(3,1);
 
-if ~exist('load_nii','file')
+if ~exist('mni2fs_load_nii','file')
     filecheck(1) = false;
 end
 if ~exist('gifti','file')
