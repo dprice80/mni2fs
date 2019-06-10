@@ -1,20 +1,21 @@
 classdef mni2fs_composite < handle
     % mni2fs_composite(varargin)
-    % Default name value pair arguments
-        % 'inflationstep' 4
-        % 'decimation' true
-        % 'plotsurf' 'smoothwm'
-        % 'mnivol' []
-        % 'clims' []
-        % 'clims_perc' 0
-        % 'climstype' 'pos'
-        % 'interpmethod' 'linear'
-        % 'surfacecolorspec' []
-        % 'colormap' 'parula'
-        % 'framerate' 10
-        % 'animvals' []
-        % 'overlayalpha' 1
     
+        % Default name-value pair arguments
+        % 'mnivol' filename of nii file (required)
+        % 'inflationstep' int range 1-5 default=4
+        % 'decimation' bool true|false default=true
+        % 'plotsurf' str default 'smoothwm'
+        % 'clims' double array [1x2] default = determine automatically from data
+        % 'clims_perc' double 0-1 default = 0
+        % 'climstype' default = 'pos'
+        % 'interpmethod' default = 'linear'
+        % 'surfacecolorspec' default = grey
+        % 'colormap' str matlab standard colourmap. default = 'parula'
+        % 'framerate' int > 0 for animations. Default=10
+        % 'animvals' []
+        % 'overlayalpha' double 0-1. Default=1
+            
     properties
         H
         ori
